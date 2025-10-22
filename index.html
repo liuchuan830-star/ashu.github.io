@@ -1,0 +1,3242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字人生成软件</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- html2canvas for video export -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <!-- Chart.js for similarity chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#60A5FA',
+                        neutral: '#6B7280',
+                        'neutral-light': '#F3F4F6',
+                        'neutral-dark': '#374151'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            }
+            .bg-gradient-blue {
+                background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-lg bg-gradient-blue flex items items-center justify-center">
+                    <i class="fa fa-user-circle text-white text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold text-primary">数字人生成软件</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="helpBtn" class="text-neutral hover:text-primary transition-all-300">
+                    <i class="fa fa-question-circle text-lg"></i>
+                </button>
+                <button id="settingsBtn" class="text-neutral hover:text-primary transition-all-300">
+                    <i class="fa fa-cog text-lg"></i>
+                </button>
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    <i class="fa fa-user text-neutral"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="flex-grow flex flex-col md:flex-row">
+        <!-- 左侧导航栏 -->
+        <nav class="w-full md:w-16 lg:w-64 bg-white shadow-sm flex md:flex-col items-center py-4">
+            <div class="flex md:flex-col items-center space-x-4 md:space-x-0 md:space-y-8 w-full px-4">
+                <button class="nav-btn active flex items-center space-x-2 w-full justify-center md:justify-start p-3 rounded-lg bg-blue-50 text-primary">
+                    <i class="fa fa-home text-lg"></i>
+                    <span class="hidden lg:inline">首页</span>
+                </button>
+                <button class="nav-btn flex items-center space-x-2 w-full justify-center md:justify-start p-3 rounded-lg hover:bg-blue-50 text-neutral hover:text-primary transition-all-300">
+                    <i class="fa fa-image text-lg"></i>
+                    <span class="hidden lg:inline">形象库</span>
+                </button>
+                <button class="nav-btn flex items-center space-x-2 w-full justify-center md:justify-start p-3 rounded-lg hover:bg-blue-50 text-neutral hover:text-primary transition-all-300">
+                    <i class="fa fa-file-text text-lg"></i>
+                    <span class="hidden lg:inline">脚本</span>
+                </button>
+                <button class="nav-btn flex items-center space-x-2 w-full justify-center md:justify-start p-3 rounded-lg hover:bg-blue-50 text-neutral hover:text-primary transition-all-300">
+                    <i class="fa fa-video-camera text-lg"></i>
+                    <span class="hidden lg:inlineinline>视频</span>
+                </button>
+                <button class="nav-btn flex-btn flex items-center space-x-2 w-full justify-center md:justify-start p-3 rounded-lg hover:bg-blue-50 text-neutral hover:text-primary transition-all-300">
+                    <i class="fa fa-share-alt text-lg"></i>
+                    <span class="hidden lg:inline">分享</span>
+                </button>
+            </div>
+            <div class="mt-auto hidden md:block">
+                <button class="flex items-center space-x-2 w-full justify-center md:justify-start p-3 rounded-lg hover:bg-blue-50 text-neutral hover:text:text-primary transition-all-300">
+                    <i class="fa fa-cog text-lg"></i>
+                    <span class="hidden lg:inline">设置</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- 中央编辑区 -->
+        <section class="flex-grow p-4 md:p-6 overflow-auto">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">创建数字人视频</h2>
+                
+                <!-- 视频预览区 -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex flex-col md:flex-row">
+                        <div class="w-full md:w-2/3 mb-4 md:mb-0 md:pr-4">
+                            <div class="aspect-video bg-neutral-light rounded-lg overflow-hidden relative">
+                                <div id="videoPreview" class="w-full h-full flex items-center justify-center">
+                                    <div class="relative w-full h-full flex items-center justify-center">
+                                        <!-- 背景图片 -->
+                                        <div id="backgroundImage" class="absolute inset-0 bg-cover bg-center opacity-50" style="background-image: url('https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/2308355419141701649~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1776719760&x-signature=%2FF4OTi%2FmYfG62ZNkpIQD08mW5GI%3D')"></div>
+                                        
+                                        <!-- 数字人形象 -->
+                                        <div id="digitalHuman" class="relative z-10 w-64 h-64 flex items-center justify-center">
+                                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/6cc01c0726ce4223adeb7e8633b9c7b2~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759778&x-signature=ZrjuLH3qiI7GeeDyie%2F6vU84JCA%3D" 
+                                                 alt="数字人形象" 
+                                                 class="w-full h-full object-contain">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-4 right-4 flex space-x-2">
+                                    <button class="bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-md text-neutral hover:text-primary transition-all-300">
+                                        <i class="fa fa-volume-up"></i>
+                                    </button>
+                                    <button id="playBtn" class="bg-primary rounded-full w-10 h-10 flex items-center justify-center shadow-md text-white hover:bg-blue-700 transition-all-300">
+                                        <i class="fa fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/3">
+                            <div class="bg-neutral-light rounded-lg p-4 h-full">
+                                <h3 class="font-medium text-lg mb-3">视频预览</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-neutral-dark mb-1">状态</label>
+                                        <div class="flex items-center">
+                                            <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                                            <span class="text-sm text-green-600">已准备</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-neutral-dark mb-1">时长</label>
+                                        <span class="text-sm">00:00</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-neutral-dark mb-1">分辨率</label>
+                                        <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                            <option>1080p</option>
+                                            <option>720p</option>
+                                            <option>480p</option>
+                                        </select>
+                                    </div>
+                                    <div class="pt-4">
+                                        <button id="exportBtn" class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                            <i class="fa fa-download mr-2"></i>
+                                            导出视频
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 文本输入区 -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <h3 class="font-medium text-lg mb-3">文本输入</h3>
+                    <div class="mb-4">
+                        <textarea id="textInput" rows="4" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 p-3" placeholder="请输入要转换为语音的文本..."></textarea>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button id="convertBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center">
+                            <i class="fa fa-magic mr-2"></i>
+                            转换为语音
+                        </button>
+                        <button id="clearBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center">
+                            <i class="fa fa-trash mr-2"></i>
+                            清空
+                        </button>
+                        <button id="templateBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center">
+                            <i class="fa fa-file-text-o mr-2"></i>
+                            模板
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 右侧控制面板 -->
+        <aside class="w-full md:w-80 bg-white shadow-sm p-4 overflow-auto">
+            <div class="space-y-6">
+                <!-- 数字人选择 -->
+                <div>
+                    <h3 class="font-medium text-lg mb-3">数字人选择</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="digital-human-option selected bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/6cc01c0726ce4223adeb7e8633b9c7b2~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759778&x-signature=ZrjuLH3qiI7GeeDyie%2F6vU84JCA%3D" 
+                                 alt="数字人1" 
+                                 class="w-full aspect-square object-contain mb-1">
+                            <p class="text-xs text-center">商务男性</p>
+                        </div>
+                        <div class="digital-human-option bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/3a4707bd984648359e3968bc3d0e8e81~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759778&x-signature=6y%2Fu6qISaJH8zxAJvwKuaoN3x20%3D" 
+                                 alt="数字人2" 
+                                 class="w-full aspect-square object-contain mb-1">
+                            <p class="text-xs text-center">商务女性</p>
+                        </div>
+                        <div class="digital-human-option bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/246a6bf2f09c40f98c2f3f2dce655c96~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759779&x-signature=m6kOJSR%2FPbzq1bCHZUU%2F%2BJP84Tg%3D" 
+                                 alt="数字人3" 
+                                 class="w-full aspect-square object-contain mb-1">
+                            <p class="text-xs text-center">休闲男性</p>
+                        </div>
+                        <div class="digital-human-option bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p3-doubao-search-sign.byteimg.com/labis/c8892e62d7eba7f4febde2475baec517~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1776719759&x-signature=MxRs8atq%2FDbD64E1vY4LubcxV%2BI%3D" 
+                                 alt="数字人4" 
+                                 class="w-full aspect-square object-contain mb-1">
+                            <p class="text-xs text-center">科技女性</p>
+                        </div>
+                    </div>
+                    <button class="mt-3 w-full bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                        <i class="fa fa-plus mr-1"></i>
+                        更多数字人
+                    </button>
+                    <button id="createFromPhotoBtn" class="mt-2 w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                        <i class="fa fa-camera mr-1"></i>
+                        从照片创建数字人
+                    </button>
+                </div>
+                
+                <!-- 背景选择 -->
+                <div>
+                    <h3 class="font-medium text-lg mb-3">背景选择</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="background-option selected bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/2308355419141701649~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1776719760&x-signature=%2FF4OTi%2FmYfG62ZNkpIQD08mW5GI%3D" 
+                                 alt="背景1" 
+                                 class="w-full aspect-video object-cover rounded mb-1">
+                            <p class="text-xs text-center">科技背景</p>
+                        </div>
+                        <div class="background-option bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p11-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1697894554685145102~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1776719760&x-signature=Yn3emFBahqbA2ygDnP3MnEIBn1w%3D" 
+                                 alt="背景2" 
+                                 class="w-full aspect-video object-cover rounded mb-1">
+                            <p class="text-xs text-center">城市夜景</p>
+                        </div>
+                        <div class="background-option bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p3-doubao-search-sign.byteimg.com/labis/5d960c144ea7ae65882328f03c40d719~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1776719760&x-signature=9l%2BgNt3Ldy0nyVjTXHUOUf4Cuxg%3D" 
+                                 alt="背景3" 
+                                 class="w-full aspect-video object-cover rounded mb-1">
+                            <p class="text-xs text-center">雪景</p>
+                        </div>
+                        <div class="background-option bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300">
+                            <img src="https://p11-doubao-search-sign.byteimg.com/labis/0600a0377a7238231175331~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1776719760&x-signature=Dukrye0W9tV13wBzH%2Fhgd%2FbQd%2Bg%3D" 
+                                 alt="背景4" 
+                                 class="w-full aspect-video object-cover rounded mb-1">
+                            <p class="text-xs text-center">彩虹背景</p>
+                        </div>
+                    </div>
+                    <button class="mt-3 w-full bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                        <i class="fa fa-plus mr-1"></i>
+                        更多背景
+                    </button>
+                </div>
+                
+                <!-- 语音设置 -->
+                <div>
+                    <h3 class="font-medium text-lg mb-3">语音设置</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-dark mb-1">语言</label>
+                            <select id="languageSelect" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                <option value="zh-CN">中文</option>
+                                <option value="en-US">英文</option>
+                                <option value="ja-JP">日文</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-dark mb-1">音色</label>
+                            <select id="voiceSelect" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                <option value="male">男声</option>
+                                <option value="female">女声</option>
+                                <option value="neutral">中性</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-dark mb-1">语速</label>
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-clock-o text-neutral"></i>
+                                <input type="range" min="0.5" max="2" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="rateSlider">
+                                <span class="text-sm text-neutral" id="rateValue">1.0</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-dark mb-1">音调</label>
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-music text-neutral"></i>
+                                <input type="range" min="0.5" max="2" step="0.1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="pitchSlider">
+                                <span class="text-sm text-neutral" id="pitchValue">1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 表情动作 -->
+                <div>
+                    <h3 class="font-medium text-lg mb-3">表情动作</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="expression-btn selected bg-neutral-light rounded-lg p-2 text-center hover:bg-blue-50 transition-all-300">
+                            <i class="fa fa-smile-o text-lg mb-1"></i>
+                            <p class="text-xs">微笑</p>
+                        </button>
+                        <button class="expression-btn bg-neutral-light rounded-lg p-2 text-center hover:bg-blue-50 transition-all-300">
+                            <i class="fa fa-meh-o text-lg mb-1"></i>
+                            <p class="text-xs">中性</p>
+                        </button>
+                        <button class="expression-btn bg-neutral-light rounded-lg p-2 text-center hover:bg-blue-50 transition-all-300">
+                            <i class="fa fa-surprise-o text-lg mb-1"></i>
+                            <p class="text-xs">惊讶</p>
+                        </button>
+                        <button class="expression-btn bg-neutral-light rounded-lg p-2 text-center hover:bg-blue-50 transition-all-300">
+                            <i class="fa fa-thumbs-up text-lg mb-1"></i>
+                            <p class="text-xs">点赞</p>
+                        </button>
+                        <button class="expression-btn bg-neutral-light rounded-lg p-2 text-center hover:bg-blue-50 transition-all-300">
+                            <i class="fa fa-hand-paper-o text-lg mb-1"></i>
+                            <p class="text-xs">挥手</p>
+                        </button>
+                        <button class="expression-btn bg-neutral-light rounded-lg p-2 text-center hover:bg-blue-50 transition-all-300">
+                            <i class="fa fa-plus text-lg mb-1"></i>
+                            <p class="text-xs">更多</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- 底部状态栏 -->
+    <footer class="bg-white shadow-sm py-2 px-4">
+        <div class="container mx-auto flex items-center justify-between text-sm text-neutral">
+            <div>© 2025 数字人生成软件</div>
+            <div class="flex items-center space-x-4">
+                <span>帮助中心</span>
+                <span>隐私政策</span>
+                <span>服务条款</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 导出弹窗 -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">导出视频</h3>
+                <button id="closeExportModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-neutral-dark mb-1">格式</label>
+                    <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                        <option>MP4</option>
+                        <option>WebM</option>
+                        <option>GIF</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral-dark mb-1">分辨率</label>
+                    <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                        <option>1080p</option>
+                        <option>720p</option>
+                        <option>480p</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral-dark mb-1">文件名</label>
+                    <input type="text" value="数字人视频" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                </div>
+                <div id="exportProgress" class="hidden">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span>导出进度</span>
+                        <span id="exportPercentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="exportProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button id="cancelExport" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                        取消
+                    </button>
+                    <button id="confirmExport" class="flex-1 bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300">
+                        确认导出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 从照片创建数字人弹窗 -->
+    <div id="photoToDigitalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">从照片创建数字人</h3>
+                <button id="closePhotoToDigitalModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="flex justify-between mb-6 relative">
+                <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+                <div class="absolute top-1/2 left-0 h-1 bg-primary -translate-y-1/2 z-0" id="progressBar" style="width: 0%"></div>
+                
+                <div class="step-indicator active flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center mb-1">1</div>
+                    <span class="text-xs">上传照片</span>
+                </div>
+                <div class="step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">2</div>
+                    <span class="text-xs">照片处理</span>
+                </div>
+                <div class="step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">3</div>
+                    <span class="text-xs">数字人设置</span>
+                </div>
+                <div class="step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">4</div>
+                    <span class="text-xs">完成</span>
+                </div>
+            </div>
+            
+            <!-- 步骤内容 -->
+            <div class="step-content">
+                <!-- 步骤1：上传照片 -->
+                <div class="step-panel active" id="step1">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="w-full md:w-1/2">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 h-64 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-all-300" id="photoDropArea">
+                                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4913091123724664aab0b0da5ce479dd~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=1Bgsmmq6cBkJYa38rP1lcwqUvCQ%3D" 
+                                     alt="上传图标" 
+                                     class="w-16 h-16 mb-3 opacity-50">
+                                <p class="text-center text-neutral mb-2">点击或拖拽照片到此处</p>
+                                <p class="text-xs text-center">支持JPG、PNG格式，大小不超过5MB</p>
+                                <input type="file" id="photoInput" class="hidden" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <h4 class="font-medium mb-3">上传照片须知</h4>
+                            <ul class="text-sm text-neutral-dark space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>请上传清晰的正面人脸照片</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>避免逆光或光线过暗的照片</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>保持面部表情自然，避免遮挡</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>建议使用纯色背景的照片</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4">
+                                <p class="text-xs text-neutral mb-2">示例照片：</p>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div class="aspect-square bg-neutral-light rounded overflow-hidden">
+                                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/6cc01c0726ce4223adeb7e8633b9c7b2~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759778&x-signature=ZrjuLH3qiI7GeeDyie%2F6vU84JCA%3D" 
+                                             alt="示例1" 
+                                             class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="aspect-square bg-neutral-light rounded overflow-hidden">
+                                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/3a4707bd984648359e3968bc3d0e8e81~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759778&x-signature=6y%2Fu6qISaJH8zxAJvwKuaoN3x20%3D" 
+                                             alt="示例2" 
+                                             class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="aspect-square bg-neutral-light rounded overflow-hidden">
+                                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/246a6bf2f09c40f98c2f3f2dce655c96~tplv-a9rns2rl98-image.image?rcl=20251023051543D0F18D48C35B63FF0446&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763759779&x-signature=m6kOJSR%2FPbzq1bCHZUU%2F%2BJP84Tg%3D" 
+                                             alt="示例3" 
+                                             class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤2：照片处理 -->
+                <div class="step-panel hidden" id="step2">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c934a8dbe59142328f5d6a797145d799~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=md8zTEimEfjDzsB9FYw64IKD8Yg%3D" 
+                             alt="面部扫描" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在处理照片</h4>
+                        <p class="text-neutral mb-6">我们正在分析您的照片并提取面部特征</p>
+                        
+                        <div class="w-full max-w-md mx-auto">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>处理进度</span>
+                                <span id="processingPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="processingProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-sm text-neutral">
+                            <p>这可能需要几秒钟时间，请稍候...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤3：数字人设置 -->
+                <div class="step-panel hidden" id="step3">
+                    <div class="flex md:flex-row gap-6">
+                        <div class="w-full md:w-1/2">
+                            <div class="aspect-square bg-neutral-light rounded-lg overflow-hidden flex items-center justify-center">
+                                <div id="digitalHumanPreview" class="w-full h-full flex items-center justify-center">
+                                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D" 
+                                         alt="数字人预览" 
+                                         class="w-3/4 h-3/4 object-contain">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <h4 class="font-medium mb-3">数字人设置</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">风格选择</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="digital-style-option selected border-2 border-primary rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-blue-100 flex items-center justify-center">
+                                                    <i class="fa fa-user text-blue-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">写实风格</p>
+                                        </div>
+                                        <div class="digital-style-option border-2 border-gray-200 rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-purple-100 flex items-center justify-center">
+                                                    <i class="fa fa-user-circle text-purple-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">卡通风格</p>
+                                        </div>
+                                        <div class="digital-style-option border-2 border-gray-200 rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-green-100 flex items-center justify-center">
+                                                    <i class="fa fa-android text-green-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">动漫风格</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">服装选择</label>
+                                    <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <option>商务正装</option>
+                                        <option>休闲装</option>
+                                        <option>运动装</option>
+                                        <option>科技感服装</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">发型选择</label>
+                                    <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <option>短发</option>
+                                        <option>中长发</option>
+                                        <option>长发</option>
+                                        <option>卷发</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">数字人名称</label>
+                                    <input type="text" placeholder="输入数字人名称" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤4：完成 -->
+                <div class="step-panel hidden" id="step4">
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-check text-green-500 text-3xl"></i>
+                        </div>
+                        <h4 class="font-medium text-lg mb-2">数字人创建成功！</h4>
+                        <p class="text-neutral mb-6">您的数字人已成功创建，可以开始使用了</p>
+                        
+                        <div class="max-w-xs mx-auto bg-neutral-light rounded-lg p-4 mb-6">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D" 
+                                 alt="数字人最终效果" 
+                                 class="w-full aspect-square object-contain mb-2">
+                            <p class="text-center font-medium">我的数字人</p>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button id="createAnotherBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-6 rounded-lg transition-all-300">
+                                创建另一个
+                            </button>
+                            <button id="useDigitalHumanBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all-300">
+                                使用此数字人
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex justify-between mt-6">
+                <button id="prevStepBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    <i class="fa fa-arrow-left mr-1"></i>
+                    上一步
+                </button>
+                <button id="nextStepBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    下一步
+                    <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 从自拍拍视频创建数字人弹窗 -->
+    <div id="videoToDigitalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">从自拍视频创建数字人</h3>
+                <button id="closeVideoToDigitalModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="flex justify-between mb-6 relative">
+                <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+                <div class="absolute top-1/2 left-0 h-1 bg-primary -translate-y-1/2 z-0" id="videoProgressBar" style="width: 0%"></div>
+                
+                <div class="video-step-indicator active flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center mb-1">1</div>
+                    <span class="text-xs">上传/录制视频</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">2</div>
+                    <span class="text-xs">视频分析</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">3</div>
+                    <span class="text-xs">特征提取</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">4</div>
+                    <span class="text-xs">模型训练</span>
+                </div>
+                <div class="video-step-indicator flex flex-col flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">5</div>
+                    <span class="text-xs">数字人生成</span>
+                </div>
+            </div>
+            
+            <!-- 步骤内容 -->
+            <div class="video-step-content">
+                <!-- 步骤1：上传/录制视频 -->
+                <div class="video-step-panel active" id="videoStep1">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="w-full md:w-1/2">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 h-80 flex flex-col items-center justify-center cursor-pointer-pointer hoverhover:border-primary transition-all-300" id="videoDropArea">
+                                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4913091123724664aab0b0da5ce479dd~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=1Bgsmmq6cBkJYa38rP1lcwqUvCQ%3D" 
+                                     alt="上传图标" 
+                                     class="w-16 h-16 mb-3 opacity-50">
+                                <p class="text-center text-neutral mb-2">点击或拖拽视频到此处</p>
+                                <p class="text-xs text-center">支持MP4、WebM格式，大小不超过50MB</p>
+                                <input type="file" id="videoInput" class="hidden" accept="video/*">
+                            </div>
+                            <div class="flex justify-center mt-4 space-x-4">
+                                <button id="recordVideoBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center">
+                                    <i class="fa fa-video-camera mr-2"></i>
+                                    录制视频
+                                </button>
+                                <button id="uploadVideoBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center">
+                                    <i class="fa fa-upload mr-2"></i>
+                                    选择视频
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <h4 class="font-medium mb-3">视频录制/上传须知</h4>
+                            <ul class="text-sm text-neutral-dark space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>请录制清晰的正面视频，时长3-10秒</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>确保光线充足的环境下录制，避免逆光</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>保持面部表情自然，适当移动头部和说话</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>确保声音清晰清晰，避免背景噪音</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>尽量在安静的环境下录制</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4">
+                                <p class="text-xs text-neutral mb-2">示例视频：</p>
+                                <div class="aspect-video bg-neutral-light rounded overflow-hidden">
+                                    <div class="w-full h-full flex items-center justify-center text-neutral">
+                                        <i class="fa fa-play-circle text-4xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤2：视频分析 -->
+                <div class="video-step-panel hidden" id="videoStep2">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c934a8dbe59142328f5d6a797145d799~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=md8zTEimEfjDzsB9FYw64IKD8Yg%3D" 
+                             alt="视频分析" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在分析视频</h4>
+                        <p class="text-neutral mb-6">我们正在分析您的视频并提取面部特征和语音信息</p>
+                        
+                        <div class="w-full max-w-md mx-auto">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>分析进度</span>
+                                <span id="videoAnalysisPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="videoAnalysisProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 grid grid-cols-2 gap-4 max-w-md mx-auto">
+                            <div class="bg-neutral-light rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-user-circle text-primary mr-2"></i>
+                                    <span class="font-medium text-sm">面部检测</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="faceDetectionProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-neutral-light rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-microphone text-primary mr-2"></i>
+                                    <span class="font-medium text-sm">语音分析</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="voiceAnalysisProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤3：特征提取 -->
+                <div class="video-step-panel hidden" id="videoStep3">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c934a8dbe59142328f5d6a797145d799~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=md8zTEimEfjDzsB9FYw64IKD8Yg%3D" 
+                             alt="特征提取" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在提取特征</h4>
+                        <p class="text-neutral mb-6">我们正在从您的视频中提取面部特征和语音特征</p>
+                        
+                        <div class="w-full max-w-md mx-auto">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>提取进度</span>
+                                <span id="featureExtractionPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="featureExtractionProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 grid grid-cols-2 gap-4 max-w-md mx-auto">
+                            <div class="bg-neutral-light rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-eye text-primary mr-2"></i>
+                                    <span class="font-medium text-sm">表情特征</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="expressionFeatureProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-neutral-light rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-microphone-slash text-primary mr-2"></i>
+                                    <span class="font-medium text-sm">语音特征</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="voiceFeatureProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-neutral-light rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-smile-o text-primary mr-2"></i>
+                                    <span class="font-medium text-sm">嘴型特征</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="lipFeatureProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-neutral-light rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-headphones text-primary mr-2"></i>
+                                    <span class="font-medium text-sm">口音特征</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="accentFeatureProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤4：模型训练 -->
+                <div class="video-step-panel hidden" id="videoStep4">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c934a8dbe59142328f5d6a797145d799~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=md8zTEimEfjDzsB9FYw64IKD8Yg%3D" 
+                             alt="模型训练" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在训练模型</h4>
+                        <p class="text-neutral mb-6">我们正在训练您的专属数字人模型</p>
+                        
+                        <div class="w-full max-w-md mx-auto">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>训练进度</span>
+                                <span id="modelTrainingPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="modelTrainingProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 max-w-md mx-auto">
+                            <div class="bg-neutral-light rounded-lg p-4">
+                                <h5 class="font-medium mb-3">训练状态</h5>
+                                <div id="trainingStatus" class="text-sm text-neutral-dark">
+                                    <p>初始化模型...</p>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>损失值</span>
+                                        <span id="lossValue">0.0000</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div id="lossProgressBar" class="bg-red-500 h-1.5 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-xs text-neutral">
+                            <p>训练可能需要几秒钟时间，请稍候...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤5：数字人生成 -->
+                <div class="video-step-panel hidden" id="videoStep5">
+                    <div class="flex md:flex-row gap-6">
+                        <div class="w-full md:w-1/2">
+                            <div class="aspect-square bg-neutral-light rounded-lg overflow-hidden flex items-center justify-center">
+                                <div id="videoDigitalHumanPreview" class="w-full h-full flex items-center justify-center">
+                                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D" 
+                                         alt="数字人预览" 
+                                         class="w-3/4 h-3/4 object-contain">
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5 class="font-medium mb-2">相似度评分</h5>
+                                <div class="flex items-center">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                                        <div id="similarityProgressBar" class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <span id="similarityScore" class="font-medium">85%</span>
+                                </div>
+                                <p class="text-xs text-neutral mt-1">上传更多视频可以提高相似度</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <h4 class="font-medium mb-3">数字人设置</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">风格选择</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="video-digital-style-option selected border-2 border-primary rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-blue-100 flex items-center justify-center">
+                                                    <i class="fa fa-user text-blue-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">写实风格</p>
+                                        </div>
+                                        <div class="video-digital-style-option border-2 border-gray-200 rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-purple-100 flex items-center justify-center">
+                                                    <i class="fa fa-user-circle text-purple-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">卡通风格</p>
+                                        </div>
+                                        <div class="video-digital-style-option border-2 border-gray-200 rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-green-100 flex items-center justify-center">
+                                                    <i class="fa fa-android text-green-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">动漫风格</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">服装选择</label>
+                                    <select id="videoDigitalHumanClothing" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <option>商务正装</option>
+                                        <option>休闲装</option>
+                                        <option>运动装</option>
+                                        <option>科技感服装</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">语音风格</label>
+                                    <select id="videoDigitalHumanVoiceStyle" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <option>自然语音</option>
+                                        <option>专业播音</option>
+                                        <option>活泼开朗</option>
+                                        <option>沉稳庄重</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">数字人名称</label>
+                                    <input type="text" id="videoDigitalHumanName" placeholder="输入数字人名称" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex justify-between mt-6">
+                <button id="videoPrevStepBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    <i class="fa fa-arrow-left mr-1"></i>
+                    上一步
+                </button>
+                <button id="videoNextStepBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    下一步
+                    <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+                <button id="videoFinishBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    完成创建
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 录制视频弹窗 -->
+    <div id="recordVideoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">录制视频</h3>
+                <button id="closeRecordVideoModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="aspect-video bg-black rounded-lg overflow-hidden mb-4">
+                <video id="videoPreviewElement" class="w-full h-full object-cover" autoplay muted></video>
+                <canvas id="videoCanvas" class="hidden"></canvas>
+            </div>
+            
+            <div class="flex justify-center space-x-4">
+                <button id="startRecordBtn" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center">
+                    <i class="fa fa-circle mr-2"></i>
+                    开始录制
+                </button>
+                <button id="stopRecordBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center hidden">
+                    <i class="fa fa-stop mr-2"></i>
+                    停止录制
+                </button>
+                <button id="retakeRecordBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center hidden">
+                    <i class="fa fa-refresh mr-2"></i>
+                    重新录制
+                </button>
+                <button id="confirmRecordBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center hidden">
+                    <i class="fa fa-check mr-2"></i>
+                    确认使用
+                </button>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <span id="recordTimer" class="text-lg font-medium">00:00</span>
+                <p class="text-xs text-neutral mt-1">请录制3-10秒的视频</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 大模型训练中心弹窗 -->
+    <div id="modelTrainingCenterModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">大模型训练中心</h3>
+                <button id="closeModelTrainingCenterModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="bg-neutral-light rounded-lg p-4">
+                    <h4 class="font-medium mb-3">上传更多视频提升相似度</h4>
+                    <p class="text-sm text-neutral-dark mb-4">上传更多不同角度、表情和场景的视频，可以提高数字人与您的相似度。</p>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 h-40 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-all-300" id="additionalVideoDropArea">
+                        <i class="fa fa-cloud-upload text-3xl text-neutral mb-2"></i>
+                        <p class="text-center text-neutral mb-2">点击或拖拽视频到此处</p>
+                        <p class="text-xs text-center">支持MP4、WebM格式，大小不超过50MB</p>
+                        <input type="file" id="additionalVideoInput" class="hidden" accept="video/*">
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium mb-3">已上传的训练视频</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-neutral-light rounded-lg overflow-hidden">
+                            <div class="aspect-video bg-black relative">
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fa fa-play-circle text-white text-4xl"></i>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                    00:05
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm font-medium">训练视频 1</span>
+                                    <div class="flex space-x-2">
+                                        <button class="text-neutral hover:text-primary">
+                                            <i class="fa fa-play"></i>
+                                        </button>
+                                        <button class="text-neutral hover:text-red-500">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>贡献度</span>
+                                        <span>35%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div class="bg-primary h-1.5 rounded-full" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-neutral-light rounded-lg overflow-hidden">
+                            <div class="aspect-video bg-black relative">
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fa fa-play-circle text-white text-4xl"></i>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                    00:07
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm font-medium">训练视频 2</span>
+                                    <div class="flex space-x-2">
+                                        <button class="text-neutral hover:text-primary">
+                                            <i class="fa fa-play"></i>
+                                        </button>
+                                        <button class="text-neutral hover:text-red-500">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>贡献度</span>
+                                        <span>25%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div class="bg-primary h-1.5 rounded-full" style="width: 25%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-neutral-light rounded-lg overflow-hidden">
+                            <div class="aspect-video bg-black relative">
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fa fa-plus text-white text-4xl"></i>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <div class="flex justify-center">
+                                    <button class="text-primary hover:text-blue-700 text-sm">
+                                        <i class="fa fa-plus-circle mr-1"></i>
+                                        添加视频
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium mb-3">相似度提升历史</h4>
+                    <div class="bg-neutral-light rounded-lg p-4">
+                        <canvas id="similarityChart" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium mb-3">训练进度</h4>
+                    <div class="bg-neutral-light rounded-lg p-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>当前相似度</span>
+                            <span class="font-medium">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>面部特征匹配</span>
+                                    <span>88%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-blue-500 h-1.5 rounded-full" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>语音特征匹配</span>
+                                    <span>82%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-purple-500 h-1.5 rounded-full" style="width: 82%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>表情特征匹配</span>
+                                    <span>80%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-yellow-500 h-1.5 rounded-full" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>嘴型特征匹配</span>
+                                    <span>85%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-green-500 h-1.5 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button id="startTrainingBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center">
+                        <i class="fa fa-play-circle mr-2"></i>
+                        开始训练
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 帮助弹窗 -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">使用帮助</h3>
+                <button id="closeHelpModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <h4 class="font-medium text-lg mb-2">如何创建数字人视频？</h4>
+                    <ol class="list-decimal pl-5 space-y-1 text-neutral-dark">
+                        <li>从右侧面板选择一个数字人形象或上传自己的照片创建</li>
+                        <li>选择一个背景场景</li>
+                        <li>在文本输入区输入要转换为语音的文本</li>
+                        <li>调整语音设置（语言、音色、语速、音调）</li>
+                        <li>选择数字人的表情和动作</li>
+                        <li>点击"转换为语音"按钮生成视频</li>
+                        <li>点击"导出视频"按钮保存生成的视频</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4 class="font-medium text-lg mb-2">如何从照片创建数字人？</h4>
+                    <ol class="list-decimal pl-5 space-y-1 text-neutral-dark">
+                        <li>点击右侧面板中的"从照片创建数字人"按钮</li>
+                        <li>上传一张清晰的正面人脸照片</li>
+                        <li>等待系统处理照片并提取面部特征</li>
+                        <li>选择数字人的风格、服装和发型</li>
+                        <li>点击"使用此数字人"按钮完成创建</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4 class="font-medium text-lg mb-2">语音设置说明</h4>
+                    <ul class="list-disc pl-5 space-y-1 text-neutral-dark">
+                        <li><strong>语言</strong>：选择数字人说话的语言</li>
+                        <li><strong>音色</strong>：选择男声、女声或中性声音</li>
+                        <li><strong>语速</strong>：调整数字人说话的速度，范围为0.5-2.0</li>
+                        <li><strong>音调</strong>：调整数字人说话的音调，范围为0.5-2.0</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-lg mb-2">常见问题</h4>
+                    <div class="space-y-2">
+                        <div>
+                            <p class="font-medium">如何添加自定义数字人形象？</p>
+                            <p class="text-neutral-dark text-sm">您可以通过"从照片创建数字人"功能上传自己的照片来创建自定义数字人形象。</p>
+                        </div>
+                        <div>
+                            <p class="font-medium">视频导出需要多长时间？</p>
+                            <p class="text-neutral-dark text-sm">视频导出时间取决于视频长度和您的设备性能，通常几秒钟到几分钟不等。</p>
+                        </div>
+                        <div>
+                            <p class="font-medium">支持哪些视频格式导出？</p>
+                            <p class="text-neutral-dark text-sm">目前支持MP4、WebM和GIF格式导出。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js for similarity chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 从自拍视频创建数字人功能 -->
+    <script src="video_to_digital.js"></script>
+    
+    <script>
+        // DOM元素
+        const textInput = document.getElementById('textInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const templateBtn = document.getElementById('templateBtn');
+        const playBtn = document.getElementById('playBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const exportModal = document.getElementById('exportModal');
+        const closeExportModal = document.getElementById('closeExportModal');
+        const confirmExport = document.getElementById('confirmExport');
+        const cancelExport = document.getElementById('cancelExport');
+        const exportProgress = document.getElementById('exportProgress');
+        const exportProgressBar = document.getElementById('exportProgressBar');
+        const exportPercentage = document.getElementById('exportPercentage');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpModal = document.getElementById('closeHelpModal');
+        const rateSlider = document.getElementById('rateSlider');
+        const rateValue = document.getElementById('rateValue');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const pitchValue = document.getElementById('pitchValue');
+        const languageSelect = document.getElementById('languageSelect');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const digitalHumanOptions = document.querySelectorAll('.digital-human-option');
+        const backgroundOptions = document.querySelectorAll('.background-option');
+        const expressionBtns = document.querySelectorAll('.expression-btn');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const digitalHuman = document.getElementById('digitalHuman');
+        const backgroundImage = document.getElementById('backgroundImage');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 设置滑块初始值
+            rateValue.textContent = rateSlider.value;
+            pitchValue.textContent = pitchSlider.value;
+            
+            // 检查浏览器是否支持语音合成
+            if ('speechSynthesis' in window) {
+                console.log('浏览器支持语音合成');
+            } else {
+                alert('您的浏览器不支持语音合成功能，请使用Chrome、Edge或Safari浏览器。');
+                convertBtn.disabled = true;
+            }
+        });
+
+        // 滑块事件
+        rateSlider.addEventListener('input', () => {
+            rateValue.textContent = rateSlider.value;
+        });
+
+        pitchSlider.addEventListener('input', () => {
+            pitchValue.textContent = pitchSlider.value;
+        });
+
+        // 数字人选择
+        digitalHumanOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除其他选项的选中状态
+                digitalHumanOptions.forEach(opt => opt.classList.remove('selected', 'ring-2', 'ring-primary'));
+                // 添加当前选项的选中状态
+                option.classList.add('selected', 'ring-2', 'ring-primary');
+                // 更新数字人形象
+                const imgSrc = option.querySelector('img').src;
+                digitalHuman.querySelector('img').src = imgSrc;
+            });
+        });
+
+        // 背景选择
+        backgroundOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除其他选项的选中状态
+                backgroundOptions.forEach(opt => opt.classList.remove('selected', 'ring-2', 'ring-primary'));
+                // 添加当前选项的选中状态
+                option.classList.add('selected', 'ring-2', 'ring-primary');
+                // 更新背景图片
+                const imgSrc = option.querySelector('img').src;
+                backgroundImage.style.backgroundImage = `url('${imgSrc}')`;
+            });
+        });
+
+        // 表情动作选择
+        expressionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除其他按钮的选中状态
+                expressionBtns.forEach(b => b.classList.remove('selected', 'bg-blue-50'));
+                // 添加当前按钮的选中状态
+                btn.classList.add('selected', 'bg-blue-50');
+                
+                // 如果是"更多"按钮，显示额外选项
+                if (btn.querySelector('i').classList.contains('fa-plus')) {
+                    alert('更多表情动作正在开发中，敬请期待！');
+                    // 取消选中"更多"按钮
+                    btn.classList.remove('selected', 'bg-blue-50');
+                    // 选中第一个按钮
+                    expressionBtns[0].classList.add('selected', 'bg-blue-50');
+                }
+            });
+        });
+
+        // 导航按钮选择
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除其他按钮的选中状态
+                navBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-blue-50', 'text-primary');
+                    b.classList.add('text-neutral', 'hover:text-primary');
+                });
+                // 添加当前按钮的选中状态
+                btn.classList.add('active', 'bg-blue-50', 'text-primary');
+                btn.classList.remove('text-neutral', 'hover:text-primary');
+            });
+        });
+
+        // 转换为语音
+        convertBtn.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('请输入要转换为语音的文本');
+                return;
+            }
+            
+            // 显示加载状态
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 转换中...';
+            
+            // 使用Web Speech API进行语音合成
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = text;
+            speech.lang = languageSelect.value;
+            speech.rate = parseFloat(rateSlider.value);
+            speech.pitch = parseFloat(pitchSlider.value);
+            
+            // 根据选择的音色设置语音
+            const voices = speechSynthesis.getVoices();
+            
+            // 延迟一下，确保voices已加载
+            setTimeout(() => {
+                const voices = speechSynthesis.getVoices();
+                let selectedVoice = null;
+                
+                if (voiceSelect.value === 'male') {
+                    selectedVoice = voices.find(voice => voice.name.includes('Male') || voice.name.includes('男'));
+                } else if (voiceSelect.value === 'female') {
+                    selectedVoice = voices.find(voice => voice.name.includes('Female') || voice.name.includes('女'));
+                }
+                
+                if (selectedVoice) {
+                    speech.voice = selectedVoice;
+                }
+                
+                // 开始合成
+                speechSynthesis.speak(speech);
+                
+                // 模拟数字人动画
+                animateDigitalHuman();
+                
+                // 合成结束后恢复按钮状态
+                speech.onend = () => {
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '<i class="fa fa-magic mr-2"></i> 转换为语音';
+                    
+                    // 更新视频状态
+                    document.querySelector('.text-green-600').textContent = '已生成';
+                    
+                    // 更新视频时长（模拟）
+                    const duration = Math.ceil(text.length / 10); // 假设每分钟600个字符
+                    const minutes = Math.floor(duration / 60);
+                    const seconds = duration % 60;
+                    document.querySelector('.text-sm').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                };
+            }, 100);
+        });
+
+        // 模拟数字人动画
+        function animateDigitalHuman() {
+            const dh = digitalHuman.querySelector('img');
+            
+            // 添加动画类
+            dh.classList.add('animate-pulse-slow');
+            
+            // 随机添加一些表情变化
+            const expressions = ['animate-bounce-slow', 'scale-105', 'scale-95'];
+            const randomExpr = expressions[Math.floor(Math.random() * expressions.length)];
+            dh.classList.add(randomExpr);
+            
+            // 5秒后移除动画类
+            setTimeout(() => {
+                dh.classList.remove('animate-pulse-slow', randomExpr);
+            }, 5000);
+        }
+
+        // 清空文本
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+        });
+
+        // 模板按钮
+        templateBtn.addEventListener('click', () => {
+            const templates = [
+                '欢迎使用我们的产品，这是一款功能强大的数字人生成软件。',
+                '今天天气晴朗，适合户外活动。记得带上防晒霜和水。',
+                '您好，我是您的虚拟助手，有什么可以帮助您的吗？',
+                '感谢您的观看，我们下期再见！'
+            ];
+            
+            const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+            textInput.value = randomTemplate;
+        });
+
+        // 播放按钮
+        playBtn.addEventListener('click', () => {
+            const icon = playBtn.querySelector('i');
+            
+            if (icon.classList.contains('fa-play')) {
+                // 切换到暂停图标
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                
+                // 模拟播放视频
+                const text = textInput.value.trim();
+                if (text) {
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.text = text;
+                    speech.lang = languageSelect.value;
+                    speech.rate = parseFloat(rateSlider.value);
+                    speech.pitch = parseFloat(pitchSlider.value);
+                    
+                    // 开始合成
+                    speechSynthesis.speak(speech);
+                    
+                    // 模拟数字人动画
+                    animateDigitalHuman();
+                }
+            } else {
+                // 切换到播放图标
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                
+                // 停止播放
+                speechSynthesis.cancel();
+            }
+        });
+
+        // 导出按钮
+        exportBtn.addEventListener('click', () => {
+            exportModal.classList.remove('hidden');
+        });
+
+        // 关闭导出弹窗
+        closeExportModal.addEventListener('click', () => {
+            exportModal.classList.add('hidden');
+            resetExportModal();
+        });
+
+        // 确认导出
+        confirmExport.addEventListener('click', () => {
+            // 显示进度条
+            exportProgress.classList.remove('hidden');
+            confirmExport.classList.add('hidden');
+            cancelExport.classList.remove('hidden');
+            
+            // 模拟导出进度
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                exportProgressBar.style.width = `${progress}%`;
+                exportPercentage.textContent = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // 延迟一下，显示完成状态
+                    setTimeout(() => {
+                        alert('视频导出成功！');
+                        exportModal.classList.add('hidden');
+                        resetExportModal();
+                    }, 500);
+                }
+            }, 200);
+        });
+
+        // 取消导出
+        cancelExport.addEventListener('click', () => {
+            resetExportModal();
+        });
+
+        // 重置导出弹窗
+        function resetExportModal() {
+            exportProgress.classList.add('hidden');
+            exportProgressBar.style.width = '0%';
+            exportPercentage.textContent = '0%';
+            confirmExport.classList.remove('hidden');
+            cancelExport.classList.add('hidden');
+        }
+
+        // 帮助按钮
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.remove('hidden');
+        });
+
+        // 关闭帮助弹窗
+        closeHelpModal.addEventListener('click', () => {
+            helpModal.classList.add('hidden');
+        });
+
+        // 点击弹窗外部关闭弹窗
+        window.addEventListener('click', (e) => {
+            if (e.target === exportModal) {
+                exportModal.classList.add('hidden');
+                resetExportModal();
+            }
+            
+            if (e.target === helpModal) {
+                helpModal.classList.add('hidden');
+            }
+        });
+
+        // 设置按钮
+        settingsBtn.addEventListener('click', () => {
+            alert('设置功能正在开发中，敬请期待！');
+        });
+        
+        // 从照片创建数字人相关
+        const createFromPhotoBtn = document.getElementById('createFromPhotoBtn');
+        const photoToDigitalModal = document.getElementById('photoToDigitalModal');
+        const closePhotoToDigitalModal = document.getElementById('closePhotoToDigitalModal');
+        const photoDropArea = document.getElementById('photoDropArea');
+        const photoInput = document.getElementById('photoInput');
+        const nextStepBtn = document.getElementById('nextStepBtn');
+        const prevStepBtn = document.getElementById('prevStepBtn');
+        const stepIndicators = document.querySelectorAll('.step-indicator');
+        const stepPanels = document.querySelectorAll('.step-panel');
+        const progressBar = document.getElementById('progressBar');
+        const processingProgressBar = document.getElementById('processingProgressBar');
+        const processingPercentage = document.getElementById('processingPercentage');
+        const createAnotherBtn = document.getElementById('createAnotherBtn');
+        const useDigitalHumanBtn = document.getElementById('useDigitalHumanBtn');
+        const digitalStyleOptions = document.querySelectorAll('.digital-style-option');
+        
+        let currentStep = 1;
+        let uploadedImage = null;
+        
+        // 打开从照片创建数字人弹窗
+        createFromPhotoBtn.addEventListener('click', () => {
+            photoToDigitalModal.classList.remove('hidden');
+            resetPhotoToDigitalModal();
+        });
+        
+        // 关闭从照片创建数字人弹窗
+        closePhotoToDigitalModal.addEventListener('click', () => {
+            photoToDigitalModal.classList.add('hidden');
+        });
+        
+        // 点击弹窗外部关闭弹窗
+        window.addEventListener('click', (e) => {
+            if (e.target === photoToDigitalModal) {
+                photoToDigitalModal.classList.add('hidden');
+            }
+        });
+        
+        // 照片上传区域点击事件
+        photoDropArea.addEventListener('click', () => {
+            photoInput.click();
+        });
+        
+        // 照片拖放功能
+        photoDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            photoDropArea.classList.add('border-primary');
+        });
+        
+        photoDropArea.addEventListener('dragleave', () => {
+            photoDropArea.classList.remove('border-primary');
+        });
+        
+        photoDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            photoDropArea.classList.remove('border-primary');
+            
+            if (e.dataTransfer.files.length) {
+                handleImageUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // 照片文件选择事件
+        photoInput.addEventListener('change', () => {
+            if (photoInput.files.length) {
+                handleImageUpload(photoInput.files[0]);
+            }
+        });
+        
+        // 处理照片上传
+        function handleImageUpload(file) {
+            // 检查文件类型
+            if (!file.type.match('image.*')) {
+                alert('请上传图片文件');
+                return;
+            }
+            
+            // 检查文件大小
+            if (file.size > 5 * 1024 * 1024) {
+                alert('图片大小不能超过5MB');
+                return;
+            }
+            
+            // 读取图片
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                
+                // 更新上传区域显示
+                photoDropArea.innerHTML = `
+                    <img src="${uploadedImage}" alt="上传的照片" class="w-full h-full object-contain">
+                `;
+                
+                // 显示下一步按钮
+                nextStepBtn.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 下一步按钮
+        nextStepBtn.addEventListener('click', () => {
+            if (currentStep === 1 && !uploadedImage) {
+                alert('请先上传照片');
+                return;
+            }
+            
+            currentStep++;
+            updateStepUI();
+            
+            if (currentStep === 2) {
+                // 模拟照片处理
+                simulatePhotoProcessing();
+            }
+        });
+        
+        // 上一步按钮
+        prevStepBtn.addEventListener('click', () => {
+            currentStep--;
+            updateStepUI();
+        });
+        
+        // 更新步骤UI
+        function updateStepUI() {
+            // 更新步骤指示器
+            stepIndicators.forEach((indicator, index) => {
+                const step = index + 1;
+                
+                if (step < currentStep) {
+                    // 已完成的步骤
+                    indicator.classList.add('active');
+                    indicator.querySelector('div').classList.remove('bg-gray-200', 'text-neutral');
+                    indicator.querySelector('div').classList.add('bg-green-500', 'text-white');
+                } else if (step === currentStep) {
+                    // 当前步骤
+                    indicator.classList.add('active');
+                    indicator.querySelector('div').classList.remove('bg-gray-200', 'text-neutral', 'bg-green-500');
+                    indicator.querySelector('div').classList.add('bg-primary', 'text-white');
+                } else {
+                    // 未完成的步骤
+                    indicator.classList.remove('active');
+                    indicator.querySelector('div').classList.remove('bg-primary', 'text-white', 'bg-green-500');
+                    indicator.querySelector('div').classList.add('bg-gray-200', 'text-neutral');
+                }
+            });
+            
+            // 更新进度条
+            progressBar.style.width = `${(currentStep - 1) * 33.33}%`;
+            
+            // 更新步骤面板
+            stepPanels.forEach((panel, index) => {
+                if (index + 1 === currentStep) {
+                    panel.classList.remove('hidden');
+                } else {
+                    panel.classList.add('hidden');
+                }
+            });
+            
+            // 更新按钮显示
+            if (currentStep === 1) {
+                prevStepBtn.classList.add('hidden');
+                nextStepBtn.classList.remove('hidden');
+                nextStepBtn.textContent = '下一步';
+                nextStepBtn.innerHTML = '下一步<i class="fa fa-arrow-right ml-1"></i>';
+            } else if (currentStep === 4) {
+                nextStepBtn.classList.add('hidden');
+                prevStepBtn.classList.remove('hidden');
+            } else {
+                prevStepBtn.classList.remove('hidden');
+                nextStepBtn.classList.remove('hidden');
+                nextStepBtn.textContent = '下一步';
+                nextStepBtn.innerHTML = '下一步<i class="fa fa-arrow-right ml-1"></i>';
+            }
+        }
+        
+        // 模拟照片处理
+        function simulatePhotoProcessing() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                processingProgressBar.style.width = `${progress}%`;
+                processingPercentage.textContent = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // 延迟一下，显示完成状态
+                    setTimeout(() => {
+                        // 自动进入下一步
+                        currentStep++;
+                        updateStepUI();
+                    }, 500);
+                }
+            }, 200);
+        }
+        
+        // 数字人风格选择
+        digitalStyleOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除其他选项的选中状态
+                digitalStyleOptions.forEach(opt => {
+                    opt.classList.remove('selected', 'border-primary');
+                    opt.classList.add('border-gray-200');
+                });
+                
+                // 添加当前选项的选中状态
+                option.classList.add('selected', 'border-primary');
+                option.classList.remove('border-gray-200');
+                
+                // 更新数字人预览（模拟）
+                const styleType = option.querySelector('p').textContent;
+                let previewImage = uploadedImage || 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+                
+                // 根据选择的风格更新预览
+                if (styleType === '卡通风格') {
+                    previewImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+                } else if (styleType === '动漫风格') {
+                    previewImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+                }
+                
+                document.getElementById('digitalHumanPreview').innerHTML = `
+                    <img src="${previewImage}" alt="数字人预览" class="w-3/4 h-3/4 object-contain">
+                `;
+            });
+        });
+        
+        // 创建另一个数字人
+        createAnotherBtn.addEventListener('click', () => {
+            resetPhotoToDigitalModal();
+        });
+        
+        // 使用此数字人
+        useDigitalHumanBtn.addEventListener('click', () => {
+            // 获取选中的数字人风格
+            const selectedStyle = document.querySelector('.digital-style-option.selected');
+            const styleType = selectedStyle ? selectedStyle.querySelector('p').textContent : '写实风格';
+            
+            // 获取数字人名称
+            const nameInput = document.querySelector('input[placeholder="输入数字人名称"]');
+            const digitalHumanName = nameInput.value || '我的数字人';
+            
+            // 更新主界面的数字人
+            let digitalHumanImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+            
+            // 根据选择的风格更新数字人形象
+            if (styleType === '卡通风格') {
+                digitalHumanImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+            } else if (styleType === '动漫风格') {
+                digitalHumanImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+            }
+            
+            // 更新主界面的数字人
+            digitalHuman.querySelector('img').src = digitalHumanImage;
+            
+            // 添加到数字人选择列表
+            const digitalHumanContainer = document.querySelector('.grid.grid-cols-2.gap-3');
+            
+            // 检查是否已有自定义数字人
+            let customDigitalHuman = document.querySelector('.custom-digital-human');
+            if (customDigitalHuman) {
+                // 更新已有的自定义数字人
+                customDigitalHuman.querySelector('img').src = digitalHumanImage;
+                customDigitalHuman.querySelector('p').textContent = digitalHumanName;
+            } else {
+                // 添加新的自定义数字人
+                const newDigitalHuman = document.createElement('div');
+                newDigitalHuman.className = 'digital-human-option custom-digital-human bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300';
+                newDigitalHuman.innerHTML = `
+                    <img src="${digitalHumanImage}" 
+                         alt="${digitalHumanName}" 
+                         class="w-full aspect-square object-contain mb-1">
+                    <p class="text-xs text-center">${digitalHumanName}</p>
+                `;
+                
+                // 添加点击事件
+                newDigitalHuman.addEventListener('click', () => {
+                    // 移除其他选项的选中状态
+                    digitalHumanOptions.forEach(opt => opt.classList.remove('selected', 'ring-2', 'ring-primary'));
+                    // 添加当前选项的选中状态
+                    newDigitalHuman.classList.add('selected', 'ring-2', 'ring-primary');
+                    // 更新数字人形象
+                    const imgSrc = newDigitalHuman.querySelector('img').src;
+                    digitalHuman.querySelector('img').src = imgSrc;
+                });
+                
+                // 添加到容器
+                digitalHumanContainer.appendChild(newDigitalHuman);
+            }
+            
+            // 关闭弹窗
+            photoToDigitalModal.classList.add('hidden');
+            
+            // 显示成功提示
+            alert(`${digitalHumanName} 创建成功！`);
+        });
+        
+        // 重置从照片创建数字人弹窗
+        function resetPhotoToDigitalModal() {
+            currentStep = 1;
+            uploadedImage = null;
+            
+            // 重置上传区域
+            photoDropArea.innerHTML = `
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4913091123724664aab0b0da5ce479dd~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=1Bgsmmq6cBkJYa38rP1lcwqUvCQ%3D" 
+                     alt="上传图标" 
+                     class="w-16 h-16 mb-3 opacity-50">
+                <p class="text-center text-neutral mb-2">点击或拖拽照片到此处</p>
+                <p class="text-xs text-center">支持JPG、PNG格式，大小不超过5MB</p>
+                <input type="file" id="photoInput" class="hidden" accept="image/*">
+            `;
+            
+            // 重置进度条
+            processingProgressBar.style.width = '0%';
+            processingPercentage.textContent = '0%';
+            
+            // 重置风格选择
+            digitalStyleOptions.forEach((option, index) => {
+                if (index === 0) {
+                    option.classList.add('selected', 'border-primary');
+                    option.classList.remove('border-gray-200');
+                } else {
+                    option.classList.remove('selected', 'border-primary');
+                    option.classList.add('border-gray-200');
+                }
+            });
+            
+            // 重置数字人预览
+            document.getElementById('digitalHumanPreview').innerHTML = `
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D" 
+                     alt="数字人预览" 
+                     class="w-3/4 h-3/4 object-contain">
+            `;
+            
+            // 重置名称输入
+            const nameInput = document.querySelector('input[placeholder="输入数字人名称"]');
+            if (nameInput) {
+                nameInput.value = '';
+            }
+            
+            // 更新UI
+            updateStepUI();
+            
+            // 隐藏下一步按钮
+            nextStepBtn.classList.add('hidden');
+        }
+    <!-- 从自拍视频创建数字人弹窗 -->
+    <div id="videoToDigitalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">从自拍视频创建数字人</h3>
+                <button id="closeVideoToDigitalModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="flex justify-between mb-6 relative">
+                <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+                <div class="absolute top-1/2 left-0 h-1 bg-primary -translate-y-1/2 z-0" id="videoProgressBar" style="width: 0%"></div>
+                
+                <div class="video-step-indicator active flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center mb-1">1</div>
+                    <span class="text-xs">视频上传/录制</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">2</div>
+                    <span class="text-xs">视频分析</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">3</div>
+                    <span class="text-xs">特征提取</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">4</div>
+                    <span class="text-xs">模型训练</span>
+                </div>
+                <div class="video-step-indicator flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 text-neutral flex items-center justify-center mb-1">5</div>
+                    <span class="text-xs">数字人生成</span>
+                </div>
+            </div>
+            
+            <!-- 步骤内容 -->
+            <div class="video-step-content">
+                <!-- 步骤1：视频上传/录制 -->
+                <div class="video-step-panel active" id="videoStep1">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="w-full lg:w-1/2">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 h-80 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-all-300" id="videoDropArea">
+                                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/d6583451cb08480ba904ee9a4dfa9970~tplv-a9rns2rl98-image.image?rcl=2025102305433379819DEFBFF023EE53F2&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763761433&x-signature=aCw9J2We235vBHb9z3cKYrD7kCE%3D" 
+                                     alt="视频上传图标" 
+                                     class="w-16 h-16 mb-3 opacity-50">
+                                <p class="text-center text-neutral mb-2">点击或拖拽视频到此处</p>
+                                <p class="text-xs text-center mb-4">支持MP4、WebM格式，大小不超过50MB</p>
+                                <div class="flex space-x-3 w-full">
+                                    <button id="recordVideoBtn" class="flex-1 bg-secondary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                                        <i class="fa fa-camera mr-1"></i>
+                                        录制视频
+                                    </button>
+                                    <button id="uploadVideoBtn" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                                        <i class="fa fa-upload mr-1"></i>
+                                        上传视频
+                                    </button>
+                                </div>
+                                <input type="file" id="videoInput" class="hidden" accept="video/*">
+                            </div>
+                        </div>
+                        <div class="w-full lg:w-1/2">
+                            <h4 class="font-medium mb-3">视频录制须知</h4>
+                            <ul class="text-sm text-neutral-dark space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>请录制清晰的正面人脸视频，时长10-30秒</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>录制时请保持光线充足，避免逆光</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>请自然地说话，展示不同的面部表情</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>尽量在安静环境下录制，确保声音清晰</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                    <span>头部保持自然，避免过大幅度的动作</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4">
+                                <p class="text-xs text-neutral mb-2">创建流程：</p>
+                                <div class="bg-neutral-light rounded-lg p-3">
+                                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a02721e4dc3a420795e81fd1e6854366~tplv-a9rns2rl98-image.image?rcl=2025102305433379819DEFBFF023EE53F2&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763761445&x-signature=f78H9YQd%2FA2lEkgGoEjtZXkYHfo%3D" 
+                                         alt="创建流程" 
+                                         class="w-full h-auto">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤2：视频分析 -->
+                <div class="video-step-panel hidden" id="videoStep2">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/d6583451cb08480ba904ee9a4dfa9970~tplv-a9rns2rl98-image.image?rcl=2025102305433379819DEFBFF023EE53F2&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763761433&x-signature=aCw9J2We235vBHb9z3cKYrD7kCE%3D" 
+                             alt="视频分析" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在分析视频</h4>
+                        <p class="text-neutral mb-6">我们正在分析您的视频内容并提取关键信息</p>
+                        
+                        <div class="w-full max-w-md mx-auto">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>分析进度</span>
+                                <span id="videoAnalysisPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="videoAnalysisProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-sm text-neutral">
+                            <p>这可能需要几秒钟时间，请稍候...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤3：特征提取 -->
+                <div class="video-step-panel hidden" id="videoStep3">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/d6583451cb08480ba904ee9a4dfa9970~tplv-a9rns2rl98-image.image?rcl=2025102305433379819DEFBFF023EE53F2&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763761433&x-signature=aCw9J2We235vBHb9z3cKYrD7kCE%3D" 
+                             alt="特征提取" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在提取特征</h4>
+                        <p class="text-neutral mb-6">我们正在提取您的面部特征、表情和语音特征</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
+                            <div class="bg-neutral-light rounded-lg p-4">
+                                <div class="flex items-center justify-center mb-2">
+                                    <i class="fa fa-user text-primary text-2xl"></i>
+                                </div>
+                                <h5 class="text-sm font-medium text-center mb-1">面部特征</h5>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="faceFeatureProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-neutral-light rounded-lg p-4">
+                                <div class="flex items-center justify-center mb-2">
+                                    <i class="fa fa-smile-o text-primary text-2xl"></i>
+                                </div>
+                                <h5 class="text-sm font-medium text-center mb-1">表情分析</h5>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="expressionProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-neutral-light rounded-lg p-4">
+                                <div class="flex items-center justify-center mb-2">
+                                    <i class="fa fa-microphone text-primary text-2xl"></i>
+                                </div>
+                                <h5 class="text-sm font-medium text-center mb-1">语音特征</h5>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="voiceFeatureProgress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full max-w-md mx-auto">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>总体进度</span>
+                                <span id="featureExtractionPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="featureExtractionProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-sm text-neutral">
+                            <p>这可能需要1-2分钟时间，请稍候...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤4：模型训练 -->
+                <div class="video-step-panel hidden" id="videoStep4">
+                    <div class="text-center py-8">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/d6583451cb08480ba904ee9a4dfa9970~tplv-a9rns2rl98-image.image?rcl=2025102305433379819DEFBFF023EE53F2&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763761433&x-signature=aCw9J2We235vBHb9z3cKYrD7kCE%3D" 
+                             alt="模型训练" 
+                             class="w-24 h-24 mx-auto mb-4">
+                        <h4 class="font-medium text-lg mb-2">正在训练模型</h4>
+                        <p class="text-neutral mb-6">我们正在训练AI模型，使其学习您的面部特征和说话风格</p>
+                        
+                        <div class="w-full max-w-md mx-auto mb-6">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>训练进度</span>
+                                <span id="modelTrainingPercentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="modelTrainingProgressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4 max-w-2xl mx-auto">
+                            <h5 class="font-medium text-primary mb-2 flex items-center">
+                                <i class="fa fa-lightbulb-o mr-2"></i>
+                                大模型学习提示
+                            </h5>
+                            <p class="text-sm text-neutral-dark">
+                                您可以上传更多视频来提高数字人的相似度。上传的视频越多，数字人与您的相似度就越高。
+                                建议上传不同场景、不同表情的视频，以便模型更全面地学习您的特征。
+                            </p>
+                            <div class="mt-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span>当前相似度评分</span>
+                                    <span class="font-medium text-primary" id="similarityScore">65%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                    <div id="similarityScoreBar" class="bg-gradient-to-r from-yellow-400 to-green-500 h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-sm text-neutral">
+                            <p>模型训练可能需要2-3分钟时间，请稍候...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步骤5：数字人生成 -->
+                <div class="video-step-panel hidden" id="videoStep5">
+                    <div class="flex md:flex-row gap-6">
+                        <div class="w-full md:w-1/2">
+                            <div class="aspect-video bg-neutral-light rounded-lg overflow-hidden flex items-center justify-center">
+                                <div id="videoDigitalHumanPreview" class="w-full h-full flex items-center justify-center">
+                                    <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D" 
+                                         alt="数字人预览" 
+                                         class="w-3/4 h-3/4 object-contain">
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 bg-blue-50 rounded-lg p-4">
+                                <h5 class="font-medium text-primary mb-2">相似度评分</h5>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span>面部相似度</span>
+                                    <span class="font-medium text-primary">78%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1 mb-3">
+                                    <div class="bg-gradient-to-r from-yellow-400 to-green-500 h-2 rounded-full" style="width: 78%"></div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-sm">
+                                    <span>声音相似度</span>
+                                    <span class="font-medium text-primary">72%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1 mb-3">
+                                    <div class="bg-gradient-to-r from-yellow-400 to-green-500 h-2 rounded-full" style="width: 72%"></div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-sm">
+                                    <span>表情相似度</span>
+                                    <span class="font-medium text-primary">68%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                    <div class="bg-gradient-to-r from-yellow-400 to-green-500 h-2 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2">
+                            <h4 class="font-medium mb-3">数字人设置</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">数字人名称</label>
+                                    <input type="text" id="videoDigitalHumanName" placeholder="输入数字人名称" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">风格选择</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="video-digital-style-option selected border-2 border-primary rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-blue-100 flex items-center justify-center">
+                                                    <i class="fa fa-user text-blue-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">写实风格</p>
+                                        </div>
+                                        <div class="video-digital-style-option border-2 border-gray-200 rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-purple-100 flex items-center justify-center">
+                                                    <i class="fa fa-user-circle text-purple-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">卡通风格</p>
+                                        </div>
+                                        <div class="video-digital-style-option border-2 border-gray-200 rounded-lg p-2 cursor-pointer">
+                                            <div class="aspect-square bg-neutral-light rounded overflow-hidden mb-1">
+                                                <div class="w-full h-full bg-green-100 flex items-center justify-center">
+                                                    <i class="fa fa-android text-green-500 text-2xl"></i>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-center">动漫风格</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">服装选择</label>
+                                    <select id="videoDigitalHumanClothing" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <option>商务正装</option>
+                                        <option>休闲装</option>
+                                        <option>运动装</option>
+                                        <option>科技感服装</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-dark mb-1">语音风格</label>
+                                    <select id="videoDigitalHumanVoice" class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <option>自然语音</option>
+                                        <option>专业解说</option>
+                                        <option>活泼开朗</option>
+                                        <option>沉稳庄重</option>
+                                    </select>
+                                </div>
+                                <div class="pt-4">
+                                    <p class="text-sm text-neutral mb-2">测试数字人：</p>
+                                    <div class="flex space-x-2">
+                                        <input type="text" id="testTextInput" placeholder="输入测试文本" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 bg-white p-2 text-sm">
+                                        <button id="testDigitalHumanBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                                            <i class="fa fa-play mr-1"></i>
+                                            测试
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex justify-between mt-6">
+                <button id="videoPrevStepBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    <i class="fa fa-arrow-left mr-1"></i>
+                    上一步
+                </button>
+                <button id="videoNextStepBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                    下一步
+                    <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+                <div class="flex space-x-3">
+                    <button id="trainMoreBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                        <i class="fa fa-plus-circle mr-1"></i>
+                        上传更多视频
+                    </button>
+                    <button id="useVideoDigitalHumanBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 hidden">
+                        <i class="fa fa-check mr-1"></i>
+                        使用此数字人
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视频录制弹窗 -->
+    <div id="videoRecorderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">录制自拍视频</h3>
+                <button id="closeVideoRecorderModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="aspect-video bg-black rounded-lg overflow-hidden mb-4">
+                <video id="videoPreviewElement" class="w-full h-full object-cover" autoplay muted></video>
+                <canvas id="videoCanvas" class="hidden"></canvas>
+            </div>
+            
+            <div class="flex justify-center space-x-4 mb-4">
+                <button id="startRecordingBtn" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center">
+                    <i class="fa fa-circle mr-2"></i>
+                    开始录制
+                </button>
+                <button id="stopRecordingBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-all-300 flex items-center hidden">
+                    <i class="fa fa-stop mr-2"></i>
+                    停止录制
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-sm text-neutral" id="recordingTimer">00:00</p>
+                <p class="text-xs text-neutral mt-2">请录制10-30秒的视频，自然地说话并展示不同表情</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 大模型训练中心弹窗 -->
+    <div id="modelTrainingCenterModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">大模型训练中心</h3>
+                <button id="closeModelTrainingCenterModal" class="text-neutral hover:text-primary">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1">
+                    <div class="bg-neutral-light rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-center mb-3">
+                            <div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center">
+                                <i class="fa fa-user text-white text-3xl"></i>
+                            </div>
+                        </div>
+                        <h4 class="font-medium text-center mb-1" id="trainingCenterName">我的数字人</h4>
+                        <div class="flex justify-center">
+                            <span class="text-xs bg-blue-100 text-primary px-2 py-1 rounded-full">
+                                <i class="fa fa-refresh mr-1"></i>
+                                训练中
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                        <h4 class="font-medium text-primary mb-2">总体相似度评分</h4>
+                        <div class="flex items-center justify-between text-sm mb-1">
+                            <span>当前评分</span>
+                            <span class="font-medium text-primary" id="centerSimilarityScore">72%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="centerSimilarityScoreBar" class="bg-gradient-to-r from-yellow-400 to-green-500 h-2.5 rounded-full" style="width: 72%"></div>
+                        </div>
+                        <p class="text-xs text-neutral mt-2">上传更多视频可提高相似度评分</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium mb-2">训练进度</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>面部特征学习</span>
+                                    <span>85%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>表情模仿</span>
+                                    <span>72%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-primary h-1.5 rounded-full" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>语音克隆</span>
+                                    <span>68%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-primary h-1.5 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>说话风格</span>
+                                    <span>65%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-medium">已上传的训练视频</h4>
+                        <button id="addMoreVideoBtn" class="bg-primary hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-lg transition-all-300 text-sm flex items-center">
+                            <i class="fa fa-plus mr-1"></i>
+                            添加视频
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        <div class="bg-neutral-light rounded-lg p-3">
+                            <div class="aspect-video bg-black rounded mb-2 relative">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <i class="fa fa-play text-white text-2xl"></i>
+                                </div>
+                                <div class="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                                    00:15
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs font-medium">训练视频 #1</p>
+                                <div class="flex space-x-1">
+                                    <button class="text-neutral hover:text-primary">
+                                        <i class="fa fa-play-circle"></i>
+                                    </button>
+                                    <button class="text-neutral hover:text-red-500">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-neutral-light rounded-lg p-3">
+                            <div class="aspect-video bg-black rounded mb-2 relative">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <i class="fa fa-play text-white text-2xl"></i>
+                                </div>
+                                <div class="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                                    00:22
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs font-medium">训练视频 #2</p>
+                                <div class="flex space-x-1">
+                                    <button class="text-neutral hover:text-primary">
+                                        <i class="fa fa-play-circle"></i>
+                                    </button>
+                                    <button class="text-neutral hover:text-red-500">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                        <h4 class="font-medium text-primary mb-2 flex items-center">
+                            <i class="fa fa-lightbulb-o mr-2"></i>
+                            训练建议
+                        </h4>
+                        <ul class="text-sm text-neutral-dark space-y-2">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>上传不同光线条件下的视频，帮助模型适应各种环境</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>录制不同情绪状态的视频，提高表情模仿的准确性</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>尝试不同语速和音调的说话方式，丰富语音模型</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-0.5 mr-2"></i>
+                                <span>每次上传的视频时长建议在10-30秒之间</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium mb-3">训练历史</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between bg-neutral-light rounded-lg p-3">
+                                <div>
+                                    <p class="text-sm font-medium">模型更新 v2.1</p>
+                                    <p class="text-xs text-neutral">添加了新的训练视频，提高了表情相似度</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-neutral">今天 14:35</p>
+                                    <p class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full mt-1">
+                                        完成
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between bg-neutral-light rounded-lg p-3">
+                                <div>
+                                    <p class="text-sm font-medium">模型更新 v2.0</p>
+                                    <p class="text-xs text-neutral">初始模型训练完成</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-neutral">今天 10:15</p>
+                                    <p class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full mt-1">
+                                        完成
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js for similarity chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <script>
+        // 从自拍视频创建数字人相关
+        const createFromVideoBtn = document.getElementById('createFromVideoBtn');
+        const videoToDigitalModal = document.getElementById('videoToDigitalModal');
+        const closeVideoToDigitalModal = document.getElementById('closeVideoToDigitalModal');
+        const videoDropArea = document.getElementById('videoDropArea');
+        const videoInput = document.getElementById('videoInput');
+        const uploadVideoBtn = document.getElementById('uploadVideoBtn');
+        const recordVideoBtn = document.getElementById('recordVideoBtn');
+        const videoNextStepBtn = document.getElementById('videoNextStepBtn');
+        const videoPrevStepBtn = document.getElementById('videoPrevStepBtn');
+        const videoStepIndicators = document.querySelectorAll('.video-step-indicator');
+        const videoStepPanels = document.querySelectorAll('.video-step-panel');
+        const videoProgressBar = document.getElementById('videoProgressBar');
+        const trainMoreBtn = document.getElementById('trainMoreBtn');
+        const useVideoDigitalHumanBtn = document.getElementById('useVideoDigitalHumanBtn');
+        const videoDigitalStyleOptions = document.querySelectorAll('.video-digital-style-option');
+        const testDigitalHumanBtn = document.getElementById('testDigitalHumanBtn');
+        const testTextInput = document.getElementById('testTextInput');
+        
+        // 视频录制相关
+        const videoRecorderModal = document.getElementById('videoRecorderModal');
+        const closeVideoRecorderModal = document.getElementById('closeVideoRecorderModal');
+        const videoPreviewElement = document.getElementById('videoPreviewElement');
+        const startRecordingBtn = document.getElementById('startRecordingBtn');
+        const stopRecordingBtn = document.getElementById('stopRecordingBtn');
+        const recordingTimer = document.getElementById('recordingTimer');
+        
+        // 大模型训练中心相关
+        const modelTrainingCenterModal = document.getElementById('modelTrainingCenterModal');
+        const closeModelTrainingCenterModal = document.getElementById('closeModelTrainingCenterModal');
+        const addMoreVideoBtn = document.getElementById('addMoreVideoBtn');
+        
+        let currentVideoStep = 1;
+        let uploadedVideo = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordingInterval = null;
+        let recordingSeconds = 0;
+        let similarityScore = 65; // 初始相似度评分
+        
+        // 打开从自拍视频创建数字人弹窗
+        createFromVideoBtn.addEventListener('click', () => {
+            videoToDigitalModal.classList.remove('hidden');
+            resetVideoToDigitalModal();
+        });
+        
+        // 关闭从自拍视频创建数字人弹窗
+        closeVideoToDigitalModal.addEventListener('click', () => {
+            videoToDigitalModal.classList.add('hidden');
+        });
+        
+        // 点击弹窗外部关闭弹窗
+        window.addEventListener('click', (e) => {
+            if (e.target === videoToDigitalModal) {
+                videoToDigitalModal.classList.add('hidden');
+            }
+        });
+        
+        // 视频上传区域点击事件
+        videoDropArea.addEventListener('click', () => {
+            videoInput.click();
+        });
+        
+        // 视频拖放功能
+        videoDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            videoDropArea.classList.add('border-primary');
+        });
+        
+        videoDropArea.addEventListener('dragleave', () => {
+            videoDropArea.classList.remove('border-primary');
+        });
+        
+        videoDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            videoDropArea.classList.remove('border-primary');
+            
+            if (e.dataTransfer.files.length) {
+                handleVideoUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // 视频文件选择事件
+        videoInput.addEventListener('change', () => {
+            if (videoInput.files.length) {
+                handleVideoUpload(videoInput.files[0]);
+            }
+        });
+        
+        // 上传视频按钮
+        uploadVideoBtn.addEventListener('click', () => {
+            videoInput.click();
+        });
+        
+        // 处理视频上传
+        function handleVideoUpload(file) {
+            // 检查文件类型
+            if (!file.type.match('video.*')) {
+                alert('请上传视频文件');
+                return;
+            }
+            
+            // 检查文件大小
+            if (file.size > 50 * 1024 * 1024) {
+                alert('视频大小不能超过50MB');
+                return;
+            }
+            
+            // 读取视频
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedVideo = e.target.result;
+                
+                // 更新上传区域显示
+                videoDropArea.innerHTML = `
+                    <video src="${uploadedVideo}" class="w-full h-full object-contain" controls></video>
+                `;
+                
+                // 显示下一步按钮
+                videoNextStepBtn.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 录制视频按钮
+        recordVideoBtn.addEventListener('click', () => {
+            videoRecorderModal.classList.remove('hidden');
+            startCamera();
+        });
+        
+        // 关闭视频录制弹窗
+        closeVideoRecorderModal.addEventListener('click', () => {
+            stopCamera();
+            videoRecorderModal.classList.add('hidden');
+        });
+        
+        // 点击弹窗外部关闭弹窗
+        window.addEventListener('click', (e) => {
+            if (e.target === videoRecorderModal) {
+                stopCamera();
+                videoRecorderModal.classList.add('hidden');
+            }
+        });
+        
+        // 开始摄像头
+        function startCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then(stream => {
+                        videoPreviewElement.srcObject = stream;
+                    })
+                    .catch(err => {
+                        console.error("摄像头访问失败: ", err);
+                        alert("无法访问摄像头，请确保您已授予摄像头和麦克风权限。");
+                        videoRecorderModal.classList.add('hidden');
+                    });
+            } else {
+                alert("您的浏览器不支持摄像头访问。");
+                videoRecorderModal.classList.add('hidden');
+            }
+        }
+        
+        // 停止摄像头
+        function stopCamera() {
+            if (videoPreviewElement.srcObject) {
+                videoPreviewElement.srcObject.getTracks().forEach(track => track.stop());
+                videoPreviewElement.srcObject = null;
+            }
+            
+            // 停止录制
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            
+            // 清除计时器
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
+            }
+            
+            recordingSeconds = 0;
+            recordingTimer.textContent = '00:00';
+            
+            // 重置按钮状态
+            startRecordingBtn.classList.remove('hidden');
+            stopRecordingBtn.classList.add('hidden');
+        }
+        
+        // 开始录制按钮
+        startRecordingBtn.addEventListener('click', () => {
+            if (!videoPreviewElement.srcObject) {
+                alert("无法访问摄像头，请重试。");
+                return;
+            }
+            
+            // 创建媒体记录器
+            mediaRecorder = new MediaRecorder(videoPreviewElement.srcObject);
+            recordedChunks = [];
+            
+            // 处理录制的数据
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+            
+            // 录制结束
+            mediaRecorder.onstop = () => {
+                const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoUrl = URL.createObjectURL(videoBlob);
+                
+                // 关闭录制弹窗
+                videoRecorderModal.classList.add('hidden');
+                
+                // 更新上传区域显示
+                videoDropArea.innerHTML = `
+                    <video src="${videoUrl}" class="w-full h-full object-contain" controls></video>
+                `;
+                
+                // 保存视频数据
+                uploadedVideo = videoUrl;
+                
+                // 显示下一步按钮
+                videoNextStepBtn.classList.remove('hidden');
+                
+                // 停止摄像头
+                stopCamera();
+            };
+            
+            // 开始录制
+            mediaRecorder.start();
+            
+            // 开始计时器
+            recordingSeconds = 0;
+            recordingTimer.textContent = '00:00';
+            recordingInterval = setInterval(() => {
+                recordingSeconds++;
+                const minutes = Math.floor(recordingSeconds / 60);
+                const seconds = recordingSeconds % 60;
+                recordingTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // 限制最大录制时间为30秒
+                if (recordingSeconds >= 30) {
+                    mediaRecorder.stop();
+                }
+            }, 1000);
+            
+            // 更新按钮状态
+            startRecordingBtn.classList.add('hidden');
+            stopRecordingBtn.classList.remove('hidden');
+        });
+        
+        // 停止录制按钮
+        stopRecordingBtn.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        });
+        
+        // 下一步按钮
+        videoNextStepBtn.addEventListener('click', () => {
+            if (currentVideoStep === 1 && !uploadedVideo) {
+                alert('请先上传或录制视频');
+                return;
+            }
+            
+            currentVideoStep++;
+            updateVideoStepUI();
+            
+            if (currentVideoStep === 2) {
+                // 模拟视频分析
+                simulateVideoAnalysis();
+            } else if (currentVideoStep === 3) {
+                // 模拟特征提取
+                simulateFeatureExtraction();
+            } else if (currentVideoStep === 4) {
+                // 模拟模型训练
+                simulateModelTraining();
+            }
+        });
+        
+        // 上一步按钮
+        videoPrevStepBtn.addEventListener('click', () => {
+            currentVideoStep--;
+            updateVideoStepUI();
+        });
+        
+        // 更新步骤UI
+        function updateVideoStepUI() {
+            // 更新步骤指示器
+            videoStepIndicators.forEach((indicator, index) => {
+                const step = index + 1;
+                
+                if (step < currentVideoStep) {
+                    // 已完成的步骤
+                    indicator.classList.add('active');
+                    indicator.querySelector('div').classList.remove('bg-gray-200', 'text-neutral');
+                    indicator.querySelector('div').classList.add('bg-green-500', 'text-white');
+                } else if (step === currentVideoStep) {
+                    // 当前步骤
+                    indicator.classList.add('active');
+                    indicator.querySelector('div').classList.remove('bg-gray-200', 'text-neutral', 'bg-green-500');
+                    indicator.querySelector('div').classList.add('bg-primary', 'text-white');
+                } else {
+                    // 未完成的步骤
+                    indicator.classList.remove('active');
+                    indicator.querySelector('div').classList.remove('bg-primary', 'text-white', 'bg-green-500');
+                    indicator.querySelector('div').classList.add('bg-gray-200', 'text-neutral');
+                }
+            });
+            
+            // 更新进度条
+            videoProgressBar.style.width = `${(currentVideoStep - 1) * 25}%`;
+            
+            // 更新步骤面板
+            videoStepPanels.forEach((panel, index) => {
+                if (index + 1 === currentVideoStep) {
+                    panel.classList.remove('hidden');
+                } else {
+                    panel.classList.add('hidden');
+                }
+            });
+            
+            // 更新按钮显示
+            if (currentVideoStep === 1) {
+                videoPrevStepBtn.classList.add('hidden');
+                videoNextStepBtn.classList.remove('hidden');
+                videoNextStepBtn.innerHTML = '下一步<i class="fa fa-arrow-right ml-1"></i>';
+                trainMoreBtn.classList.add('hidden');
+                useVideoDigitalHumanBtn.classList.add('hidden');
+            } else if (currentVideoStep === 5) {
+                videoNextStepBtn.classList.add('hidden');
+                videoPrevStepBtn.classList.remove('hidden');
+                trainMoreBtn.classList.remove('hidden');
+                useVideoDigitalHumanBtn.classList.remove('hidden');
+            } else {
+                videoPrevStepBtn.classList.remove('hidden');
+                videoNextStepBtn.classList.remove('hidden');
+                videoNextStepBtn.innerHTML = '下一步<i class="fa fa-arrow-right ml-1"></i>';
+                trainMoreBtn.classList.add('hidden');
+                useVideoDigitalHumanBtn.classList.add('hidden');
+            }
+        }
+        
+        // 模拟视频分析
+        function simulateVideoAnalysis() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                document.getElementById('videoAnalysisProgressBar').style.width = `${progress}%`;
+                document.getElementById('videoAnalysisPercentage').textContent = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // 延迟一下，显示完成状态
+                    setTimeout(() => {
+                        // 自动进入下一步
+                        currentVideoStep++;
+                        updateVideoStepUI();
+                        
+                        // 模拟特征提取
+                        simulateFeatureExtraction();
+                    }, 500);
+                }
+            }, 200);
+        }
+        
+        // 模拟特征提取
+        function simulateFeatureExtraction() {
+            let faceProgress = 0;
+            let expressionProgress = 0;
+            let voiceProgress = 0;
+            let overallProgress = 0;
+            
+            const interval = setInterval(() => {
+                // 面部特征进度
+                faceProgress += 7;
+                if (faceProgress > 100) faceProgress = 100;
+                document.getElementById('faceFeatureProgress').style.width = `${faceProgress}%`;
+                
+                // 表情分析进度
+                expressionProgress += 5;
+                if (expressionProgress > 100) expressionProgress = 100;
+                document.getElementById('expressionProgress').style.width = `${expressionProgress}%`;
+                
+                // 语音特征进度
+                voiceProgress += 4;
+                if (voiceProgress > 100) voiceProgress = 100;
+                document.getElementById('voiceFeatureProgress').style.width = `${voiceProgress}%`;
+                
+                // 总体进度
+                overallProgress = Math.round((faceProgress + expressionProgress + voiceProgress) / 3);
+                document.getElementById('featureExtractionProgressBar').style.width = `${overallProgress}%`;
+                document.getElementById('featureExtractionPercentage').textContent = `${overallProgress}%`;
+                
+                if (overallProgress >= 100) {
+                    clearInterval(interval);
+                    
+                    // 延迟一下，显示完成状态
+                    setTimeout(() => {
+                        // 自动进入下一步
+                        currentVideoStep++;
+                        updateVideoStepUI();
+                        
+                        // 模拟模型训练
+                        simulateModelTraining();
+                    }, 500);
+                }
+            }, 300);
+        }
+        
+        // 模拟模型训练
+        function simulateModelTraining() {
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 3;
+                
+                // 随机增加相似度评分
+                if (Math.random() > 0.7) {
+                    similarityScore += 0.5;
+                    if (similarityScore > 100) similarityScore = 100;
+                    document.getElementById('similarityScore').textContent = `${Math.round(similarityScore)}%`;
+                    document.getElementById('similarityScoreBar').style.width = `${similarityScore}%`;
+                }
+                
+                document.getElementById('modelTrainingProgressBar').style.width = `${progress}%`;
+                document.getElementById('modelTrainingPercentage').textContent = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // 延迟一下，显示完成状态
+                    setTimeout(() => {
+                        // 自动进入下一步
+                        currentVideoStep++;
+                        updateVideoStepUI();
+                    }, 500);
+                }
+            }, 400);
+        }
+        
+        // 数字人风格选择
+        videoDigitalStyleOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除其他选项的选中状态
+                videoDigitalStyleOptions.forEach(opt => {
+                    opt.classList.remove('selected', 'border-primary');
+                    opt.classList.add('border-gray-200');
+                });
+                
+                // 添加当前选项的选中状态
+                option.classList.add('selected', 'border-primary');
+                option.classList.remove('border-gray-200');
+                
+                // 更新数字人预览（模拟）
+                const styleType = option.querySelector('p').textContent;
+                let previewImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+                
+                // 根据选择的风格更新预览
+                if (styleType === '卡通风格') {
+                    previewImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+                } else if (styleType === '动漫风格') {
+                    previewImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+                }
+                
+                document.getElementById('videoDigitalHumanPreview').innerHTML = `
+                    <img src="${previewImage}" alt="数字人预览" class="w-3/4 h-3/4 object-contain">
+                `;
+            });
+        });
+        
+        // 测试数字人按钮
+        testDigitalHumanBtn.addEventListener('click', () => {
+            const text = testTextInput.value.trim();
+            
+            if (!text) {
+                alert('请输入测试文本');
+                return;
+            }
+            
+            // 显示加载状态
+            testDigitalHumanBtn.disabled = true;
+            testDigitalHumanBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 测试中...';
+            
+            // 使用Web Speech API进行语音合成
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = text;
+            speech.lang = 'zh-CN';
+            speech.rate = 1;
+            speech.pitch = 1;
+            
+            // 开始合成
+            speechSynthesis.speak(speech);
+            
+            // 模拟数字人动画
+            const dh = document.querySelector('#videoDigitalHumanPreview img');
+            dh.classList.add('animate-pulse-slow');
+            
+            // 合成结束后恢复按钮状态
+            speech.onend = () => {
+                testDigitalHumanBtn.disabled = false;
+                testDigitalHumanBtn.innerHTML = '<i class="fa fa-play mr-1"></i> 测试';
+                dh.classList.remove('animate-pulse-slow');
+            };
+        });
+        
+        // 上传更多视频按钮
+        trainMoreBtn.addEventListener('click', () => {
+            // 关闭当前弹窗
+            videoToDigitalModal.classList.add('hidden');
+            
+            // 打开大模型训练中心
+            modelTrainingCenterModal.classList.remove('hidden');
+            
+            // 更新相似度评分
+            document.getElementById('centerSimilarityScore').textContent = `${Math.round(similarityScore)}%`;
+            document.getElementById('centerSimilarityScoreBar').style.width = `${similarityScore}%`;
+        });
+        
+        // 添加更多视频按钮
+        addMoreVideoBtn.addEventListener('click', () => {
+            // 关闭训练中心
+            modelTrainingCenterModal.classList.add('hidden');
+            
+            // 重新打开视频创建弹窗
+            videoToDigitalModal.classList.remove('hidden');
+            resetVideoToDigitalModal();
+        });
+        
+        // 关闭大模型训练中心弹窗
+        closeModelTrainingCenterModal.addEventListener('click', () => {
+            modelTrainingCenterModal.classList.add('hidden');
+        });
+        
+        // 点击弹窗外部关闭弹窗
+        window.addEventListener('click', (e) => {
+            if (e.target === modelTrainingCenterModal) {
+                modelTrainingCenterModal.classList.add('hidden');
+            }
+        });
+        
+        // 使用此数字人
+        useVideoDigitalHumanBtn.addEventListener('click', () => {
+            // 获取数字人名称
+            const nameInput = document.getElementById('videoDigitalHumanName');
+            const digitalHumanName = nameInput.value || '我的数字人';
+            
+            // 获取选中的数字人风格
+            const selectedStyle = document.querySelector('.video-digital-style-option.selected');
+            const styleType = selectedStyle ? selectedStyle.querySelector('p').textContent : '写实风格';
+            
+            // 获取服装和语音风格
+            const clothingSelect = document.getElementById('videoDigitalHumanClothing');
+            const voiceSelect = document.getElementById('videoDigitalHumanVoice');
+            const clothing = clothingSelect.options[clothingSelect.selectedIndex].text;
+            const voiceStyle = voiceSelect.options[voiceSelect.selectedIndex].text;
+            
+            // 更新主界面的数字人
+            let digitalHumanImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+            
+            // 根据选择的风格更新数字人形象
+            if (styleType === '卡通风格') {
+                digitalHumanImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+            } else if (styleType === '动漫风格') {
+                digitalHumanImage = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D';
+            }
+            
+            // 更新主界面的数字人
+            digitalHuman.querySelector('img').src = digitalHumanImage;
+            
+            // 添加到数字人选择列表
+            const digitalHumanContainer = document.querySelector('.grid.grid-cols-2.gap-3');
+            
+            // 检查是否已有自定义数字人
+            let customDigitalHuman = document.querySelector('.video-custom-digital-human');
+            if (customDigitalHuman) {
+                // 更新已有的自定义数字人
+                customDigitalHuman.querySelector('img').src = digitalHumanImage;
+                customDigitalHuman.querySelector('p').textContent = digitalHumanName;
+            } else {
+                // 添加新的自定义数字人
+                const newDigitalHuman = document.createElement('div');
+                newDigitalHuman.className = 'digital-human-option video-custom-digital-human bg-neutral-light rounded-lg p-2 cursor-pointer hover:ring-2 hover:ring-primary transition-all-300';
+                newDigitalHuman.innerHTML = `
+                    <img src="${digitalHumanImage}" 
+                         alt="${digitalHumanName}" 
+                         class="w-full aspect-square object-contain mb-1">
+                    <p class="text-xs text-center">${digitalHumanName}</p>
+                `;
+                
+                // 添加点击事件
+                newDigitalHuman.addEventListener('click', () => {
+                    // 移除其他选项的选中状态
+                    digitalHumanOptions.forEach(opt => opt.classList.remove('selected', 'ring-2', 'ring-primary'));
+                    // 添加当前选项的选中状态
+                    newDigitalHuman.classList.add('selected', 'ring-2', 'ring-primary');
+                    // 更新数字人形象
+                    const imgSrc = newDigitalHuman.querySelector('img').src;
+                    digitalHuman.querySelector('img').src = imgSrc;
+                });
+                
+                // 添加到容器
+                digitalHumanContainer.appendChild(newDigitalHuman);
+            }
+            
+            // 关闭弹窗
+            videoToDigitalModal.classList.add('hidden');
+            
+            // 显示成功提示
+            alert(`${digitalHumanName} 创建成功！相似度评分：${Math.round(similarityScore)}%`);
+        });
+        
+        // 重置从自拍视频创建数字人弹窗
+        function resetVideoToDigitalModal() {
+            currentVideoStep = 1;
+            uploadedVideo = null;
+            similarityScore = 65;
+            
+            // 重置上传区域
+            videoDropArea.innerHTML = `
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/d6583451cb08480ba904ee9a4dfa9970~tplv-a9rns2rl98-image.image?rcl=2025102305433379819DEFBFF023EE53F2&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763761433&x-signature=aCw9J2We235vBHb9z3cKYrD7kCE%3D" 
+                     alt="视频上传图标" 
+                     class="w-16 h-16 mb-3 opacity-50">
+                <p class="text-center text-neutral mb-2">点击或拖拽视频到此处</p>
+                <p class="text-xs text-center mb-4">支持MP4、WebM格式，大小不超过50MB</p>
+                <div class="flex space-x-3 w-full">
+                    <button id="recordVideoBtn" class="flex-1 bg-secondary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                        <i class="fa fa-camera mr-1"></i>
+                        录制视频
+                    </button>
+                    <button id="uploadVideoBtn" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-neutral font-medium py-2 px-4 rounded-lg transition-all-300 text-sm flex items-center justify-center">
+                        <i class="fa fa-upload mr-1"></i>
+                        上传视频
+                    </button>
+                </div>
+                <input type="file" id="videoInput" class="hidden" accept="video/*">
+            `;
+            
+            // 重置进度条
+            document.getElementById('videoAnalysisProgressBar').style.width = '0%';
+            document.getElementById('videoAnalysisPercentage').textContent = '0%';
+            
+            document.getElementById('faceFeatureProgress').style.width = '0%';
+            document.getElementById('expressionProgress').style.width = '0%';
+            document.getElementById('voiceFeatureProgress').style.width = '0%';
+            document.getElementById('featureExtractionProgressBar').style.width = '0%';
+            document.getElementById('featureExtractionPercentage').textContent = '0%';
+            
+            document.getElementById('modelTrainingProgressBar').style.width = '0%';
+            document.getElementById('modelTrainingPercentage').textContent = '0%';
+            document.getElementById('similarityScore').textContent = '65%';
+            document.getElementById('similarityScoreBar').style.width = '65%';
+            
+            // 重置风格选择
+            videoDigitalStyleOptions.forEach((option, index) => {
+                if (index === 0) {
+                    option.classList.add('selected', 'border-primary');
+                    option.classList.remove('border-gray-200');
+                } else {
+                    option.classList.remove('selected', 'border-primary');
+                    option.classList.add('border-gray-200');
+                }
+            });
+            
+            // 重置数字人预览
+            document.getElementById('videoDigitalHumanPreview').innerHTML = `
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5fc0b71e3c245829a3dbf27689d8435~tplv-a9rns2rl98-image.image?rcl=2025102305205319E2ADB7C26D9C738041&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1763760069&x-signature=RFGR0wB1CmD6ojsQUtbVKLhB%2Bss%3D" 
+                     alt="数字人预览" 
+                     class="w-3/4 h-3/4 object-contain">
+            `;
+            
+            // 重置名称输入
+            const nameInput = document.getElementById('videoDigitalHumanName');
+            if (nameInput) {
+                nameInput.value = '';
+            }
+            
+            // 重置测试文本输入
+            if (testTextInput) {
+                testTextInput.value = '';
+            }
+            
+            // 更新UI
+            updateVideoStepUI();
+            
+            // 隐藏下一步按钮
+            videoNextStepBtn.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

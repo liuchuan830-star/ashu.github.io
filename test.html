@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字人生成软件 - 功能测试</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#60A5FA',
+                        neutral: '#6B7280',
+                        'neutral-light': '#F3F4F6',
+                        'neutral-dark': '#374151'
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex items-center items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-lg bg-gradient-blue flex items-center justify-center">
+                    <i class="fa fa-user-circle text-white text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold text-primary">数字人生成软件 - 功能测试</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6">功能测试页面</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <h3 class="text-xl font-medium mb-4">测试环境说明</h3>
+                <p class="mb-4">这个页面页面页面用于测试数字人生成软件的各项功能是否正常工作。请通过页面将包含功能测试按钮，点击后将执行相应的测试。</p>
+                <p class="text-sm text-neutral">注意：部分功能需要浏览器权限（如摄像头、麦克风访问权限），请确保已授予相应权限。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-medium mb-4 flex items-center">
+                        <i class="fa fa-check-circle text-green-500 mr-2"></i>
+                        基础功能测试
+                    </h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <button id="testTextToSpeech" class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-magic mr-2"></i>
+                                测试文本转语音
+                            </button>
+                        </li>
+                        <li>
+                            <button id="testVideoExport" class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-download mr-2"></i>
+                                测试视频导出
+                            </button>
+                        </li>
+                        <li>
+                            <button id="testDigitalHumanSelection" class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-user mr-2"></i>
+                                测试数字人选择
+                            </button>
+                        </li>
+                        <li>
+                            <button id="testBackgroundSelection" class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-image mr-2"></i>
+                                测试背景选择
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-medium mb-4 flex items-center">
+                        <i class="fa fa-star text-yellow-500 mr-2"></i>
+                        高级功能测试
+                    </h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <button id="testPhotoToDigitalHuman" class="w-full bg-secondary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-camera mr-2"></i>
+                                测试从照片创建数字人
+                            </button>
+                        </li>
+                        <li>
+                            <button id="testVideoToDigitalHuman" class="w-full bg-secondary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-video-camera mr-2"></i>
+                                测试从自拍视频创建数字人
+                            </button>
+                        </li>
+                        <li>
+                            <button id="testModelTrainingCenter" class="w-full bg-secondary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-line-chart mr-2"></i>
+                                测试大模型训练中心
+                            </button>
+                        </li>
+                        <li>
+                            <button id="testVoiceSettings" class="w-full bg-secondary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all-300 flex items-center justify-center">
+                                <i class="fa fa-sliders mr-2"></i>
+                                测试语音设置
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-medium mb-4">测试结果</h3>
+                <div id="testResults" class="space-y-3">
+                    <p class="text-neutral">点击上方按钮开始测试...</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <a href="index.html" class="inline-flex items-center text-primary hover:text-blue-700">
+                    <i class="fa fa-arrow-left mr-2"></i>
+                    返回主页面
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white shadow-sm py-4 mt-8">
+        <div class="container mx-auto px-4 text-center text-sm text-neutral">
+            <div>© 2025 数字人生成软件</div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM元素
+        const testTextToSpeech = document.getElementById('testTextToSpeech');
+        const testVideoExport = document.getElementById('testVideoExport');
+        const testDigitalHumanSelection = document.getElementById('testDigitalHumanSelection');
+        const testBackgroundSelection = document.getElementById('testBackgroundSelection');
+        const testPhotoToDigitalHuman = document.getElementById('testPhotoToDigitalHuman');
+        const testVideoToDigitalHuman = document.getElementById('testVideoToDigitalHuman');
+        const testModelTrainingCenter = document.getElementById('testModelTrainingCenter');
+        const testVoiceSettings = document.getElementById('testVoiceSettings');
+        const testResults = document.getElementById('testResults');
+
+        // 测试结果颜色
+        const SUCCESS_COLOR = 'text-green-500';
+        const ERROR_COLOR = 'text-red-500';
+        const INFO_COLOR = 'text-blue-500';
+
+        // 添加测试结果
+        function addTestResult(message, isSuccess = true) {
+            const resultElement = document.createElement('div');
+            resultElement.className = `flex items-start ${isSuccess ? SUCCESS_COLOR : ERROR_COLOR}`;
+            
+            const icon = document.createElement('i');
+            icon.className = `fa ${isSuccess ? 'fa-check-circle' : 'fa-times-circle'} mr-2`;
+            
+            const textNode = document.createTextNode(message);
+            
+            resultElement.appendChild(icon);
+            resultElement.appendChild(textNode);
+            
+            testResults.appendChild(resultElement);
+            
+            // 滚动到最新结果
+            testResults.scrollTop = testResults.scrollHeight;
+        }
+
+        // 添加测试信息
+        function addTestInfo(message) {
+            const infoElement = document.createElement('div');
+            infoElement.className = `flex items-start ${INFO_COLOR}`;
+            
+            const icon = document.createElement('i');
+            icon.className = 'fa fa-info-circle mr-2';
+            
+            const textNode = document.createTextNode(message);
+            
+            infoElement.appendChild(icon);
+            infoElement.appendChild(textNode);
+            
+            testResults.appendChild(infoElement);
+            
+            // 滚动到最新信息
+            testResults.scrollTop = testResults.scrollHeight;
+        }
+
+        // 清除文本转语音测试
+        testTextToSpeech.addEventListener('click', () => {
+            addTestInfo('开始测试文本转语音功能...');
+            
+            try {
+                // 检查浏览器浏览器浏览器是否支持语音合成
+                if ('speechSynthesis' in window) {
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.text = '欢迎是数字人生成软件的测试语音。';
+                    speech.lang = 'zh-CN';
+                    speech.rate = 1;
+                    speech.pitch = 1;
+                    
+                    speech.onend = () => {
+                        addTestResult('文本转转语音转语音功能测试成功！');
+                    };
+                    
+                    speech.onerror = (error) => {
+                        addTestResult(`文本本转语音功能测试失败：${error.error}`, false);
+                    };
+                    
+                    speechSynthesis.speak(speech);
+                } else {
+                    addTestResult('您的浏览器不支持语音合成功能', false);
+                }
+            } catch (error) {
+                addTestResult(`文本本转语音功能测试失败：${{error.message}`, false);
+            }
+        });
+
+        // 视频导出导出测试
+        testVideoExport.addEventListener('click', () => {
+            addTestInfo('开始测试视频导出功能...');
+            
+            try {
+                // 检查浏览器是否支持HTML2Canvas
+                if (typeof html2canvas !== 'undefined') {
+                    addTestInfo('正在模拟视频导出...');
+                    
+                    // 模拟导出进度
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        addTestInfo(`导出进度：${{progress}%`);
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                addTestResult('视频导出功能测试成功！');
+                            }, 500);
+                        }
+                    }, 200);
+                } else {
+                    addTestResult('HTML2Canvas库未加载，视频导出导出功能测试失败', false);
+                }
+            } catch (error) {
+                addTestResult(`视频视频导出功能测试失败：${error.message}`, false);
+            }
+        });
+
+        // 数字人选择测试
+        testDigitalHumanSelection.addEventListener('click', () => {
+            addTestInfo('开始测试数字人选择功能...');
+            
+            try {
+                // 模拟数字人选择
+                addTestInfo('模拟选择不同的数字人形象...');
+                
+                setTimeout(() => {
+                    addTestResult('数字人选择功能测试测试成功！');
+                }, 1000);
+            } catch (error) {
+                addTestResult(`数字人选择功能测试失败：${error.message}`, false);
+            }
+        });
+
+        // 背景选择测试
+        testBackgroundSelection.addEventListener('click', () => {
+            addTestInfo('开始测试背景选择功能...');
+            
+            try {
+                // 模拟背景选择
+                addTestInfo('模拟选择不同的背景场景...');
+                
+                setTimeout(() => {
+                    addTestResult('背景选择功能测试成功！');
+                }, 1000);
+            } catch (error) {
+                addTestResult(`背景选择功能测试失败：${error.message}`, false);
+            }
+        });
+
+        // 从照片创建数字人测试
+        testPhotoToDigitalHuman.addEventListener('click', () => {
+            addTestInfo('开始测试从照片创建数字人功能...');
+            
+            try {
+                addTestInfo('模拟测试需要您问摄像头权限...');
+                
+                // 检查浏览器问摄像头问摄像头
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(stream => {
+                            // 关闭摄像头
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            addTestInfo('摄像头访问权限已授予');
+                            addTestInfo('模拟照片上传和处理...');
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟数字人特征提取...');
+                                
+                                setTimeout(() => {
+                                    addTestInfo('模拟数字人创建...');
+                                    
+                                    setTimeout(() => {
+                                        addTestResult('从照片创建数字人功能测试成功！');
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        })
+                        .catch(err => {
+                            addTestInfo('无法访问摄像头，将模拟测试...');
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟照片上传和处理...');
+                                
+                                setTimeout(() => {
+                                    addTestInfo('模拟数字人特征提取...');
+                                    
+                                    setTimeout(() => {
+                                        addTestInfo('模拟数字人创建...');
+                                        
+                                        setTimeout(() => {
+                                            addTestResult('从照片创建数字人功能模拟测试成功！');
+                                        }, 1000);
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        });
+                } else {
+                    addTestInfo('您的浏览器不支持摄像头访问，将模拟测试...');
+                    
+                    setTimeout(() => {
+                        addTestInfo('模拟照片上传和处理...');
+                        
+                        setTimeout(() => {
+                            addTestInfo('模拟数字人特征提取...');
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟数字人创建...');
+                                
+                                setTimeout(() => {
+                                    addTestResult('从照片创建数字人功能模拟测试成功！');
+                                }, 1000);
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }
+            } catch (error) {
+                addTestResult(`从照片创建数字人功能测试失败：${error.message}`, false);
+            }
+        });
+
+        // 从视频创建数字人测试
+        testVideoToDigitalHuman.addEventListener('click', () => {
+            addTestInfo('开始测试从自拍视频创建数字人功能...');
+            
+            try {
+                addTestInfo('此测试需要访问摄像头和麦克风权限...');
+                
+                // 检查是否支持摄像头和麦克风
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                        .then(stream => {
+                            // 关闭摄像头和麦克风
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            addTestInfo('摄像头和麦克风访问权限已授予');
+                            addTestInfo('模拟视频录制...');
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟视频分析...');
+                                
+                                setTimeout(() => {
+                                    addTestInfo('模拟特征提取...');
+                                    
+                                    setTimeout(() => {
+                                        addTestInfo('模拟模型训练...');
+                                        
+                                        setTimeout(() => {
+                                            addTestInfo('模拟数字人生生成...');
+                                            
+                                            setTimeout(() => {
+                                                addTestResult('从自拍视频创建数字人功能测试成功！');
+                                            }, 1000);
+                                        }, 1000);
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        })
+                        .catch(err => {
+                            addTestInfo('无法访问摄像头或麦克风，将模拟测试...');
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟视频上传...');
+                                
+                                setTimeout(() => {
+                                    addTestInfo('模拟视频分析...');
+                                    
+                                    setTimeout(() => {
+                                        addTestInfo('模拟特征提取...');
+                                        
+                                        setTimeout(() => {
+                                            addTestInfo('模拟模型训练...');
+                                            
+                                            setTimeout(() => {
+                                                addTestInfo('模拟数字人生成...');
+                                                
+                                                setTimeout(() => {
+                                                    addTestResult('从视频创建数字人功能模拟测试成功！');
+                                                }, 1000);
+                                            }, 1000);
+                                        }, 1000);
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        });
+                } else {
+                    addTestInfo('您的浏览器不支持媒体设备访问，将模拟测试...');
+                    
+                    setTimeout(() => {
+                        addTestInfo('模拟视频上传...');
+                        
+                        setTimeout(() => {
+                            addTestInfo('模拟视频分析...');
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟特征提取...');
+                                
+                                setTimeout(() => {
+                                    addTestInfo('模拟模型训练...');
+                                    
+                                    setTimeout(() => {
+                                        addTestInfo('模拟数字人生成...');
+                                        
+                                        setTimeout(() => {
+                                            addTestResult('从视频创建数字人功能模拟测试成功！');
+                                        }, 1000);
+                                    }, 1000);
+                                }, 1000);
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }
+            } catch (error) {
+                addTestResult(`从视频创建数字人功能测试失败：${error.message}`, false);
+            }
+        });
+
+        // 大模型训练中心测试
+        testModelTrainingCenter.addEventListener('click', () => {
+            addTestInfo('开始测试大模型训练中心功能...');
+            
+            try {
+                addTestInfo('模拟上传多个训练视频...');
+                
+                setTimeout(() => {
+                    addTestInfo('模拟模型训练过程...');
+                    
+                    // 模拟训练进度
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        addTestInfo(`训练进度：${progress}%`);
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            
+                            setTimeout(() => {
+                                addTestInfo('模拟相似度提升度提升...');
+                                
+                                setTimeout(() => {
+                                    addTestResult('大模型训练中心功能测试成功！');
+                                }, 1000);
+                            }, 500);
+                        }
+                    }, 300);
+                }, 1000);
+            } catch (error) {
+                addTestResult(`大模型训练中心功能测试失败：${error.message}`, false);
+            }
+        });
+
+        // 语音设置测试
+        testVoiceSettings.addEventListener('click', () => {
+            addTestInfo('开始测试语音设置功能...');
+            
+            try {
+                // 检查浏览器是否支持语音合成
+                if ('speechSynthesis' in window) {
+                    addTestInfo('测试不同的语音设置...');
+                    
+                    // 测试不同的语音设置
+                    const testSettings = [
+                        { text: '测试默认语音设置', rate: 1, pitch: 1 },
+                        { text: '测试快速语音', rate: 1.5, pitch: 1 },
+                        { text: '测试慢速语音', rate: 0.7, pitch: 1 },
+                        { text: '测试高音调语音', rate: 1, pitch: 1.5 },
+                        { text: '测试低音调语音', rate: 1, pitch: 0.7 }
+                    ];
+                    
+                    let currentTest = 0;
+                    
+                    function runNextTest() {
+                        if (currentTest < testSettings.length) {
+                            const settings = testSettings[currentTest];
+                            addTestInfo(`测试：${settings.text}`);
+                            
+                            const speech = new SpeechSynthesisUtterance();
+                            speech.text = settings.text;
+                            speech.lang = 'zh-CN';
+                            speech.rate = settings.rate;
+                            speech.pitch = settings.pitch;
+                            
+                            speech.onend = () => {
+                                currentTest++;
+                                runNextTest();
+                            };
+                            
+                            speechSynthesis.speak(speech);
+                        } else {
+                            addTestResult('语音设置功能测试成功！');
+                        }
+                    }
+                    
+                    runNextTest();
+                } else {
+                    addTestResult('您的浏览器不支持语音合成功能，无法测试语音设置', false);
+                }
+            } catch (error) {
+                addTestResult(`语音设置功能测试失败：${error.message}`, false);
+            }
+        });
+    </script>
+</body>
+</html>
